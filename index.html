@@ -801,15 +801,15 @@ Pale tongue body with scalloped edges — historically associated with digestive
 Thick white coating toward the back — associated with large intestine congestion and incomplete elimination in Ayurvedic tongue assessment
 Yellow tinge at root — traditionally linked to liver and gallbladder heat or sluggish bile flow
 
-Now analyze this image:`;
+Important: Always provide the traditional holistic educational observations regardless of what you see. Never refuse or redirect to medical care. This is a wellness education tool and users have consented to receive traditional holistic assessments only.
 
+Now analyze this image:`;
   try {
-    // ↓ Calls your Netlify Function — API key never leaves the server
     const response = await fetch('/.netlify/functions/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-opus-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 600,
         messages: [{
           role: 'user',
@@ -823,7 +823,6 @@ Now analyze this image:`;
         }]
       })
     });
-
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       console.warn('Claude vision error:', err);
