@@ -1399,18 +1399,53 @@ const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesF
       renderPositive(photoFindings);
       return;
     }
-    // Claude found real findings — show them with general wellness protocol
-    const fallback = KNOWLEDGE['digestive'];
+// Map Claude's findings to relevant conditions
+    const findingText = photoFindings.join(' ').toLowerCase();
+    const photoScores = {};
+    Object.entries(KNOWLEDGE).forEach(([key, cond]) => {
+      cond.keywords.forEach(kw => {
+        if (findingText.includes(kw)) photoScores[key] = (photoScores[key] || 0) + 5;
+      });
+      cond.symptoms?.forEach(s => {
+        if (findingText.includes(s)) photoScores[key] = (photoScores[key] || 0) + 3;
+      });
+    });
+
+    // Also match organ system words from Claude's response
+    const organMap = {
+      liver: ['liver','hepatic','gallbladder','bile'],
+      kidney: ['kidney','renal','adrenal'],
+      digestive: ['digestive','stomach','intestine','colon','gut','spleen'],
+      heart: ['heart','cardiovascular','circulation','blood'],
+      immune: ['immune','lymph','inflammation','infection'],
+      skin: ['skin','dermal','rash','eczema','acne'],
+      lung: ['lung','respiratory','breath','mucus'],
+      endocrine: ['thyroid','hormone','adrenal','endocrine']
+    };
+    Object.entries(organMap).forEach(([key, words]) => {
+      words.forEach(w => {
+        if (findingText.includes(w)) photoScores[key] = (photoScores[key] || 0) + 8;
+      });
+    });
+
+    const photoMatched = Object.entries(photoScores)
+      .sort((a,b) => b[1]-a[1])
+      .slice(0,2)
+      .map(([k]) => k);
+
+    const photoConditions = (photoMatched.length ? photoMatched : ['digestive'])
+      .map(k => KNOWLEDGE[k]);
+
     renderResults({
-      summary: 'Based on the visual signs observed in your photo, the following traditional wellness observations and general support recommendations have been prepared for educational reference.',
+      summary: 'Based on the visual signs observed in your photo, the following traditional wellness observations and support recommendations have been prepared for educational reference.',
       priority: 'medium',
       photo_findings: photoFindings,
       symptom_findings: [],
       notes_findings: [],
-      conditions: [{ name: fallback.name, system: fallback.system, priority: fallback.priority, description: fallback.description, herbs: fallback.herbs }],
-      foods: fallback.foods.slice(0,6),
-      avoid: fallback.avoid.slice(0,5),
-      lifestyle: fallback.lifestyle.slice(0,5)
+      conditions: photoConditions.map(c => ({ name: c.name, system: c.system, priority: c.priority, description: c.description, herbs: c.herbs })),
+      foods: [...new Set(photoConditions.flatMap(c => c.foods))].slice(0,6),
+      avoid: [...new Set(photoConditions.flatMap(c => c.avoid))].slice(0,5),
+      lifestyle: [...new Set(photoConditions.flatMap(c => c.lifestyle))].slice(0,5)
     });
     return;
   }
