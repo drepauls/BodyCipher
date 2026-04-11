@@ -837,6 +837,11 @@ Now analyze this image:`;
       .map(l => l.replace(/^[-•*\d.]+\s*/, '').trim())
       .filter(l => l.length > 20);
 
+    // If no line breaks, treat whole response as one finding
+    if (!findings.length && text.length > 20) {
+      return [text.trim()];
+    }
+
     return findings.length ? findings : null;
 
   } catch (err) {
