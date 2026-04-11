@@ -1367,7 +1367,6 @@ console.log('Vision findings:', visionFindings);
         combined.includes('can\'t ethically frame');
       console.log('MEDICAL CHECK:', combined.substring(0, 200));
       if (medicalConcern) {
-        alert('TRIGGERED BY: ' + combined.substring(0, 300));
         go('results');
         document.getElementById('s-results').innerHTML = `
           <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:13px;padding:20px;margin-bottom:16px">
