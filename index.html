@@ -1374,6 +1374,17 @@ console.log('Vision findings:', visionFindings);
         combined.includes('close-up') ||
         combined.includes('decline this request');
       console.log('MEDICAL CHECK:', combined.substring(0, 200));
+      if (photoIssue) {
+        go('results');
+        document.getElementById('s-results').innerHTML = `
+          <div style="background:#e8f4fd;border:1px solid #2196F3;border-radius:13px;padding:20px;margin-bottom:16px">
+            <div style="font-size:18px;font-weight:700;color:#1565C0;margin-bottom:8px">📷 Better Photo Needed</div>
+            <p style="color:#1565C0;margin-bottom:12px">For the most accurate wellness assessment please upload a clear close-up photo of a specific area — tongue, nails, eyes, or skin. Full face portraits or unclear images cannot be properly analyzed using traditional holistic methods.</p>
+            <p style="color:#1565C0;margin:0;font-weight:600">Try again with a well-lit close-up of the specific area you want assessed. 🌿</p>
+          </div>`;
+        return;
+      }
+
       if (medicalConcern) {
         go('results');
         document.getElementById('s-results').innerHTML = `
