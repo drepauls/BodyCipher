@@ -1361,10 +1361,15 @@ console.log('Vision findings:', visionFindings);
     document.getElementById('loadMsg').textContent = 'Building your personalized reference…';
   }
   // ── Photo-only with no symptoms detected → positive result ──
-  const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesFindings.length;
+ const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesFindings.length;
   if (photoData && noSymptoms) {
-    renderPositive(photoFindings);
-    return;
+    // Only show Looking Good if Claude returned no real findings
+    if (!photoFindings.length) {
+      renderPositive(photoFindings);
+      return;
+    }
+    // Claude found something — show findings with general wellness protocol
+    matched = ['digestive'];
   }
 
   // Get top matched conditions (max 3)
