@@ -20,7 +20,7 @@ exports.handler = async function (event) {
     const body = JSON.parse(event.body);
 
     const payload = JSON.stringify({
-      model: body.model || 'claude-opus-4-5',
+      model: body.model || 'claude-haiku-4-5-20251001',
       max_tokens: body.max_tokens || 600,
       messages: body.messages
     });
