@@ -1365,6 +1365,14 @@ console.log('Vision findings:', visionFindings);
         combined.includes('ophthalmologist') ||
         combined.includes('requires medical evaluation') ||
         combined.includes('can\'t ethically frame');
+
+      const photoIssue = combined.includes('respectfully decline') ||
+        combined.includes('identify individuals') ||
+        combined.includes('portrait photograph') ||
+        combined.includes('not able to identify') ||
+        combined.includes('privacy') ||
+        combined.includes('close-up') ||
+        combined.includes('decline this request');
       console.log('MEDICAL CHECK:', combined.substring(0, 200));
       if (medicalConcern) {
         go('results');
