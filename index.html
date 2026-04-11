@@ -1361,15 +1361,26 @@ console.log('Vision findings:', visionFindings);
     document.getElementById('loadMsg').textContent = 'Building your personalized reference…';
   }
   // ── Photo-only with no symptoms detected → positive result ──
- const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesFindings.length;
+const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesFindings.length;
   if (photoData && noSymptoms) {
-    // Only show Looking Good if Claude returned no real findings
     if (!photoFindings.length) {
       renderPositive(photoFindings);
       return;
     }
-    // Claude found something — show findings with general wellness protocol
-    matched = ['digestive'];
+    // Claude found real findings — show them with general wellness protocol
+    const fallback = KNOWLEDGE['digestive'];
+    renderResults({
+      summary: 'Based on the visual signs observed in your photo, the following traditional wellness observations and general support recommendations have been prepared for educational reference.',
+      priority: 'medium',
+      photo_findings: photoFindings,
+      symptom_findings: [],
+      notes_findings: [],
+      conditions: [{ name: fallback.name, system: fallback.system, priority: fallback.priority, description: fallback.description, herbs: fallback.herbs }],
+      foods: fallback.foods.slice(0,6),
+      avoid: fallback.avoid.slice(0,5),
+      lifestyle: fallback.lifestyle.slice(0,5)
+    });
+    return;
   }
 
   // Get top matched conditions (max 3)
