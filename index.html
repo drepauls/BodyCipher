@@ -1317,7 +1317,7 @@ async function runAnalysis(symSummary, userNotes) {
   if (photoData) {
     document.getElementById('loadMsg').textContent = 'Analyzing your photo with AI vision…';
     const visionFindings = await analyzePhotoWithClaude(photoData, areas);
-
+console.log('Vision findings:', visionFindings);
     if (visionFindings && visionFindings.length) {
       const combined = visionFindings.join(' ').toLowerCase();
       const medicalConcern = combined.includes('medical') || 
