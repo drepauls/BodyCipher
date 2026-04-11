@@ -1319,6 +1319,25 @@ async function runAnalysis(symSummary, userNotes) {
     const visionFindings = await analyzePhotoWithClaude(photoData, areas);
 
     if (visionFindings && visionFindings.length) {
+      const combined = visionFindings.join(' ').toLowerCase();
+      const medicalConcern = combined.includes('medical') || 
+        combined.includes('healthcare provider') || 
+        combined.includes('not able to provide') ||
+        combined.includes('jaundice') ||
+        combined.includes('clinical') ||
+        combined.includes('serious condition') ||
+        combined.includes('prompt');
+
+      if (medicalConcern) {
+        go('results');
+        document.getElementById('resultsOut').innerHTML = `
+          <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:13px;padding:20px;margin-bottom:16px">
+            <div style="font-size:18px;font-weight:700;color:#856404;margin-bottom:8px">⚠️ Please Consult a Healthcare Provider</div>
+            <p style="color:#856404;margin-bottom:12px">${visionFindings.join(' ')}</p>
+            <p style="color:#856404;margin:0;font-weight:600">BodyCipher is a wellness education tool only. The visual signs observed in your photo fall outside the scope of holistic wellness reference and may require prompt medical attention. Please consult a licensed healthcare professional.</p>
+          </div>`;
+        return;
+      }
       photoFindings.push(...visionFindings);
     } else {
       // Fallback if API key not set or call failed
@@ -1334,7 +1353,6 @@ async function runAnalysis(symSummary, userNotes) {
     }
     document.getElementById('loadMsg').textContent = 'Building your personalized reference…';
   }
-
   // ── Photo-only with no symptoms detected → positive result ──
   const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesFindings.length;
   if (photoData && noSymptoms) {
