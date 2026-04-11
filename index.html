@@ -1335,7 +1335,7 @@ console.log('Vision findings:', visionFindings);
 
       if (medicalConcern) {
         go('results');
-        document.getElementById('resultsOut').innerHTML = `
+        document.getElementById('s-results').innerHTML = `
           <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:13px;padding:20px;margin-bottom:16px">
             <div style="font-size:18px;font-weight:700;color:#856404;margin-bottom:8px">⚠️ Please Consult a Healthcare Provider</div>
             <p style="color:#856404;margin-bottom:12px">${visionFindings.join(' ')}</p>
