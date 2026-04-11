@@ -1325,27 +1325,20 @@ async function runAnalysis(symSummary, userNotes) {
 console.log('Vision findings:', visionFindings);
     if (visionFindings && visionFindings.length) {
       const combined = visionFindings.join(' ').toLowerCase();
-      const medicalConcern = combined.includes('medical') || 
-        combined.includes('healthcare provider') || 
-        combined.includes('not able to provide') ||
+      const medicalConcern = combined.includes('healthcare provider') || 
+        combined.includes('not able to provide this analysis') ||
         combined.includes('jaundice') ||
-        combined.includes('clinical') ||
-        combined.includes('serious condition') ||
-        combined.includes('prompt') ||
-        combined.includes('ethically') ||
         combined.includes('eye care professional') ||
         combined.includes('optometrist') ||
         combined.includes('ophthalmologist') ||
-        combined.includes('acute') ||
-        combined.includes('pathology') ||
-        combined.includes('professional evaluation') ||
-        combined.includes('prioritize getting') ||
-        combined.includes('warrants') ||
-        combined.includes('beyond the scope') ||
-        combined.includes('can\'t') ||
-        combined.includes('cannot') ||
-        combined.includes('responsible');
-
+        combined.includes('requires medical evaluation') ||
+        combined.includes('requires medical attention') ||
+        combined.includes('scleral icterus') ||
+        combined.includes('acute condition') ||
+        combined.includes('beyond the scope of') ||
+        combined.includes('prioritize getting this checked') ||
+        combined.includes('warrants prompt attention') ||
+        combined.includes('can\'t ethically frame');
       if (medicalConcern) {
         go('results');
         document.getElementById('s-results').innerHTML = `
