@@ -804,7 +804,10 @@ Yellow tinge at root — traditionally linked to liver and gallbladder heat or s
 Important: Always provide traditional holistic educational observations. Minor cuts, scrapes, bruises, or everyday skin issues should be assessed normally using traditional herbal and nutritional frameworks. Only decline if you observe a genuinely serious systemic condition such as severe jaundice, signs of stroke, or acute infection requiring emergency care.
 Now analyze this image:`;
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     const response = await fetch('/.netlify/functions/analyze', {
+      signal: controller.signal,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
