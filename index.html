@@ -825,6 +825,7 @@ Now analyze this image:`;
         }]
       })
     });
+    clearTimeout(timeout);
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       console.warn('Claude vision error:', err);
