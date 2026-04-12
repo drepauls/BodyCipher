@@ -1365,11 +1365,8 @@ console.log('Vision findings:', visionFindings);
         combined.includes('requires medical evaluation') ||
         combined.includes('can\'t ethically frame');
 
-      const photoIssue = combined.includes('respectfully decline this request') ||
-        combined.includes('identify individuals') ||
-        combined.includes('portrait photograph') ||
-        combined.includes('cannot identify') ||
-        combined.includes('decline this request');
+      const photoIssue = combined.includes('portrait photograph') ||
+        combined.includes('identify individuals');
       console.log('MEDICAL CHECK:', combined.substring(0, 200));
       if (photoIssue) {
         go('results');
