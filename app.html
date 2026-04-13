@@ -287,7 +287,12 @@ input[type=range]{width:100%;accent-color:var(--acc);margin:10px 0;cursor:pointe
   border-radius:10px;padding:13px;color:#ffffff;font-family:'Josefin Sans',sans-serif;
   font-size:15px;text-align:center;letter-spacing:.2em;text-transform:uppercase;
   outline:none;margin-bottom:10px;-webkit-appearance:none;transition:border-color .2s}
-#gateInput:focus{border-color:var(--acc)}
+outline:none;margin-bottom:10px;-webkit-appearance:none;transition:border-color .2s}
+#gateInput, #gateInput:-webkit-autofill{
+  -webkit-text-fill-color:#ffffff !important;
+}
+#gateInput::placeholder{color:rgba(255,255,255,0.4);}
+  #gateInput:focus{border-color:var(--acc)}
 .gate-btn{width:100%;padding:13px;background:var(--acc);color:#fff;border:none;
   border-radius:10px;font-family:'Josefin Sans',sans-serif;font-size:14px;font-weight:600;
   cursor:pointer;letter-spacing:.06em;text-transform:uppercase;-webkit-tap-highlight-color:transparent}
