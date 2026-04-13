@@ -691,8 +691,10 @@ function checkAccess() {
   document.getElementById('badge').textContent = v;
   init();
   postGateInit();
-}
-document.getElementById('gateInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkAccess(); });
+}document.getElementById('gateInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkAccess(); });
+document.getElementById('gateInput').addEventListener('input', function() {
+  this.style.cssText += 'color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;';
+});
 window.addEventListener('load', () => {
   const s = sessionStorage.getItem('hc_code');
   if (s && CODES.has(s)) { userCode = s; document.getElementById('gate').style.display = 'none'; document.getElementById('badge').textContent = s; init(); postGateInit(); }
