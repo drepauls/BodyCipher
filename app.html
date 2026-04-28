@@ -1186,7 +1186,82 @@ const SYM_MAP = {
 // ═══════════════════════════════════════════════════════════
 // OFFLINE ANALYSIS ENGINE
 // ═══════════════════════════════════════════════════════════
-async function runAnalysis(symSummary, userNotes) {
+// ═══════════════════════════════════════════════════════════
+// PHOTO RETRY WRAPPER — gates runAnalysis behind clarity check
+// ═══════════════════════════════════════════════════════════
+let photoAttempts = 0;
+
+async function analyzeWithRetry(symSummary, userNotes) {
+  // No photo? Skip clarity check — go straight to offline engine.
+  if (!photoData) {
+    photoAttempts = 0;
+    return runAnalysis(symSummary, userNotes);
+  }
+
+  go('loading');
+  document.getElementById('loadMsg').textContent = 'Reviewing your photo…';
+
+  try {
+    const base64 = photoData.includes(',') ? photoData.split(',')[1] : photoData;
+
+    const res = await fetch('/.netlify/functions/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64, attempt: photoAttempts + 1 })
+    });
+
+    const data = await res.json();
+
+    // Photo was unclear
+    if (data.clear === false) {
+      photoAttempts++;
+
+      if (photoAttempts === 1) {
+        showPhotoRetryBanner("📷 We couldn't get a clear read — please try another photo (better lighting, closer, in focus).");
+        resetPhoto();
+        go('inquiry'); // change to your upload screen ID if different
+        return;
+      } else {
+        showPhotoRetryBanner("📝 Still having trouble reading the image — please describe your symptoms or what you're noticing below.");
+        resetPhoto();
+        go('inquiry');
+        const sym = document.getElementById('symText');
+        if (sym) { sym.focus(); sym.scrollIntoView({behavior:'smooth', block:'center'}); }
+        photoAttempts = 0;
+        return;
+      }
+    }
+
+    // Photo was clear → reset counter and run full offline analysis
+    photoAttempts = 0;
+    return analyzeWithRetry(...);
+
+  } catch (err) {
+    console.warn('Photo clarity check failed, running offline analysis:', err);
+    photoAttempts = 0;
+    return analyzeWithRetry(...);
+  }
+}
+
+function showPhotoRetryBanner(msg) {
+  let banner = document.getElementById('photoRetryBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'photoRetryBanner';
+    banner.style.cssText =
+      'background:#fff8e0;border:1.5px solid #d4a030;border-radius:12px;' +
+      'padding:14px 16px;margin:12px 0;font-size:14px;color:#5a3e00;' +
+      'line-height:1.6;font-weight:500';
+    const target = document.getElementById('s-inquiry') ||
+                   document.querySelector('.cam-big')?.parentElement;
+    if (target) target.insertBefore(banner, target.firstChild);
+  }
+  banner.textContent = msg;
+  banner.style.display = 'block';
+  banner.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(() => { if (banner) banner.style.display = 'none'; }, 10000);
+}
+  async function analyzeWithRetry(...) {
   const notes = (userNotes !== undefined ? userNotes : (document.getElementById('symText')?.value || '')).trim().toLowerCase();
   const areas = [...document.querySelectorAll('.apill.on')].map(b => b.dataset.a);
 
