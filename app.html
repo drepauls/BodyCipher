@@ -1818,7 +1818,7 @@ function doManual() {
     ).join('\n');
   }
 
-  runAnalysis(symSummary, notes);
+  analyzeWithRetry(summary, notes);
 }
 
 // ═══════════════════════════════════════════════════════════
