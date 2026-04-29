@@ -1211,7 +1211,7 @@ async function analyzeWithRetry(symSummary, userNotes) {
     });
 
     const data = await res.json();
-
+alert('CLAUDE RESPONSE: ' + JSON.stringify(data, null, 2));
     // Photo unclear → retry flow
     if (data.clear === false) {
       photoAttempts++;
