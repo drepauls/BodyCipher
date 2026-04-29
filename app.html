@@ -1336,7 +1336,12 @@ function showPhotoRetryBanner(msg) {
     });
     if (!photoFindings.length) photoFindings.push('Photo received — visual signs will be incorporated in the protocol below');
   }
-
+// Override generic findings with Claude's real photo analysis
+if (window._claudePhotoFindings && window._claudePhotoFindings.length) {
+  photoFindings.length = 0;
+  photoFindings.push(...window._claudePhotoFindings);
+  window._claudePhotoFindings = null;
+}
   // ── Photo-only with no symptoms detected → positive result ──
   const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesFindings.length;
   if (photoData && noSymptoms) {
