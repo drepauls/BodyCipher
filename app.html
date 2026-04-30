@@ -1191,6 +1191,36 @@ const SYM_MAP = {
 // ═══════════════════════════════════════════════════════════
 let photoAttempts = 0;
 
+  async function analyzeWithRetry(symSummary, userNotes) {
+  alert('1️⃣ analyzeWithRetry STARTED. photoData exists: ' + !!photoData);
+  
+  if (!photoData) {
+    photoAttempts = 0;
+    return runAnalysis(symSummary, userNotes);
+  }
+
+  go('loading');
+  document.getElementById('loadMsg').textContent = 'Reviewing your photo…';
+
+  try {
+    const base64 = photoData.includes(',') ? photoData.split(',')[1] : photoData;
+    const areas = [...document.querySelectorAll('.apill.on')].map(b => b.dataset.a);
+    
+    alert('2️⃣ About to call Claude. Base64 length: ' + base64.length);
+
+    const res = await fetch('/.netlify/functions/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64, areas })
+    });
+
+    alert('3️⃣ Got response. Status: ' + res.status);
+
+    const data = await res.json();
+    
+    alert('4️⃣ CLAUDE RESPONSE: ' + JSON.stringify(data, null, 2));
+
+    // ... rest of your existing code stays the same
 async function analyzeWithRetry(symSummary, userNotes) {
   if (!photoData) {
     photoAttempts = 0;
