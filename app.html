@@ -1233,11 +1233,8 @@ alert('CLAUDE RESPONSE: ' + JSON.stringify(data, null, 2));
 
     photoAttempts = 0;
 
-    // ── Photo was clear. Did Claude detect any concerns? ──
-    if (data.concerns_detected === false && !symSummary && !userNotes) {
-      // Truly clear photo + no symptoms → show positive result with Claude's findings
-      renderPositive(data.findings);
-      return;
+// Photo was analyzed by Claude — always run full results with findings
+return runAnalysisWithClaudeFindings(symSummary, userNotes, data);
     }
 
     // Photo had concerns OR user provided symptoms → run full results
