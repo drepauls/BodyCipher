@@ -1272,6 +1272,13 @@ return runAnalysisWithClaudeFindings(symSummary, userNotes, data);
     return runAnalysisWithClaudeFindings(symSummary, userNotes, data);
 
   } catch (err) {
+    alert('❌ ERROR caught: ' + err.message);
+    console.warn('Photo clarity check failed:', err);
+    photoAttempts = 0;
+    return runAnalysis(symSummary, userNotes);
+  }
+}
+  } catch (err) {
     console.warn('Photo analysis failed, running offline:', err);
     photoAttempts = 0;
     return runAnalysis(symSummary, userNotes);
