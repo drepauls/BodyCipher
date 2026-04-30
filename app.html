@@ -1249,14 +1249,12 @@ return runAnalysisWithClaudeFindings(symSummary, userNotes, data);
 }
 
 async function runAnalysisWithClaudeFindings(symSummary, userNotes, claudeData) {
-  // Build a temp notes string that includes Claude's suggested conditions
-  // so the offline engine picks the right matches
   const conditionKeywords = (claudeData.suggested_conditions || []).join(' ');
   const enhancedNotes = (userNotes || '') + ' ' + conditionKeywords;
 
-  // Stash Claude's findings so renderResults can use them
   window._claudePhotoFindings = claudeData.findings || [];
   window._claudeHerbs = claudeData.herbs || [];
+  window._forceFullResults = true;   // ← NEW: bypass the "Looking Good" shortcut
 
   return runAnalysis(symSummary, enhancedNotes);
 }
