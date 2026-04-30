@@ -1338,11 +1338,12 @@ if (window._claudePhotoFindings && window._claudePhotoFindings.length) {
   window._claudePhotoFindings = null;
 }
   // ── Photo-only with no symptoms detected → positive result ──
-  const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesFindings.length;
-  if (photoData && noSymptoms) {
-    renderPositive(photoFindings);
-    return;
-  }
+ const noSymptoms = !Object.keys(scores).length && !symFindings.length && !notesFindings.length;
+if (photoData && noSymptoms && !window._forceFullResults) {
+  renderPositive(photoFindings);
+  return;
+}
+window._forceFullResults = false; // reset for next run
 
   // Get top matched conditions (max 3)
   let matched = Object.entries(scores)
