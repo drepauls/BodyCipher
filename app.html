@@ -1247,7 +1247,88 @@ async function analyzeWithRetry(symSummary, userNotes) {
   }
 }
 
+
+  
+  // ═══════════════════════════════════════════════════════════
+// PHOTO RETRY WRAPPER — sends photo to Claude before offline analysis
+// ═══════════════════════════════════════════════════════════
+let photoAttempts = 0;
+
+async function analyzeWithRetry(symSummary, userNotes) {
+  alert('1️⃣ analyzeWithRetry RUNNING. Has photo: ' + !!photoData);
+
+  if (!photoData) {
+    photoAttempts = 0;
+    return runAnalysis(symSummary, userNotes);
+  }
+
+  go('loading');
+  document.getElementById('loadMsg').textContent = 'Reviewing your photo…';
+
+  try {
+    const base64 = photoData.includes(',') ? photoData.split(',')[1] : photoData;
+    const areas = [...document.querySelectorAll('.apill.on')].map(b => b.dataset.a);
+
+    const res = await fetch('/.netlify/functions/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64, areas })
+    });
+
+    const data = await res.json();
+    alert('2️⃣ Claude said: ' + JSON.stringify(data).slice(0, 300));
+
+    if (data.clear === false) {
+      photoAttempts++;
+      if (photoAttempts === 1) {
+        showPhotoRetryBanner("📷 We couldn't get a clear read — please try another photo.");
+        resetPhoto();
+        go('manual');
+        return;
+      } else {
+        showPhotoRetryBanner("📝 Still having trouble — please describe your symptoms below.");
+        resetPhoto();
+        go('manual');
+        const sym = document.getElementById('symText');
+        if (sym) { sym.focus(); sym.scrollIntoView({behavior:'smooth', block:'center'}); }
+        photoAttempts = 0;
+        return;
+      }
+    }
+
+    photoAttempts = 0;
+    return runAnalysisWithClaudeFindings(symSummary, userNotes, data);
+
+  } catch (err) {
+    alert('❌ Error: ' + err.message);
+    photoAttempts = 0;
+    return runAnalysis(symSummary, userNotes);
+  }
+}
+
 async function runAnalysisWithClaudeFindings(symSummary, userNotes, claudeData) {
+  const conditionKeywords = (claudeData.suggested_conditions || []).join(' ');
+  const enhancedNotes = (userNotes || '') + ' ' + conditionKeywords;
+  window._claudePhotoFindings = claudeData.findings || [];
+  window._claudeHerbs = claudeData.herbs || [];
+  window._forceFullResults = true;
+  return runAnalysis(symSummary, enhancedNotes);
+}
+
+function showPhotoRetryBanner(msg) {
+  let banner = document.getElementById('photoRetryBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'photoRetryBanner';
+    banner.style.cssText = 'background:#fff8e0;border:1.5px solid #d4a030;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;color:#5a3e00;line-height:1.6;font-weight:500';
+    const target = document.getElementById('s-manual');
+    if (target) target.insertBefore(banner, target.firstChild);
+  }
+  banner.textContent = msg;
+  banner.style.display = 'block';
+  banner.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(() => { if (banner) banner.style.display = 'none'; }, 12000);
+}async function runAnalysisWithClaudeFindings(symSummary, userNotes, claudeData) {
   const conditionKeywords = (claudeData.suggested_conditions || []).join(' ');
   const enhancedNotes = (userNotes || '') + ' ' + conditionKeywords;
   window._claudePhotoFindings = claudeData.findings || [];
