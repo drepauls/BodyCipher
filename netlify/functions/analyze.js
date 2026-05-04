@@ -1,3 +1,4 @@
+```javascript
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
@@ -10,36 +11,51 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'No image provided' }) };
     }
 
+    // ✅ Auto-detect image format (iPhone often sends PNG, not JPEG)
+    let mediaType = 'image/jpeg';
+    let cleanBase64 = image;
+    if (image.startsWith('data:')) {
+      const match = image.match(/^data:(image\/[a-z]+);base64,(.+)$/);
+      if (match) {
+        mediaType = match[1];
+        cleanBase64 = match[2];
+      }
+    }
+
     const areaContext = areas && areas.length
       ? `The user indicated the photo shows: ${areas.join(', ')}.`
       : 'The user did not specify what the photo shows.';
 
-    const prompt = `You are an experienced herbalist trained in traditional iridology, tongue diagnosis, and facial diagnosis (educational reference only — not medical advice).
+    const prompt = `You are a traditional herbalist trained in iridology, tongue diagnosis, nail analysis, and facial diagnosis. This is for educational wellness reference only.
 
 ${areaContext}
 
-Examine the photo carefully. Respond ONLY in this exact JSON format:
+CRITICAL: Examine the photo with full attention. You MUST report any visible signs, including:
+
+EYES: Yellow tint in whites (sclera) → liver/gallbladder concern. Red/bloodshot → inflammation. Cloudy → toxin buildup. Dark circles → kidney/adrenal fatigue. Pale conjunctiva → possible iron deficiency.
+
+TONGUE: Pale → blood deficiency. Bright red → heat. Purple → circulation. Thick coating → digestive imbalance. Yellow coating → heat/infection. Cracks → dehydration. Scalloped edges → spleen weakness.
+
+NAILS: White spots → mineral deficiency. Vertical ridges → aging. Horizontal lines → past stress. Yellow → fungal/liver. Pale → anemia. Blue → circulation.
+
+SKIN/FACE: Yellow undertone → liver. Redness → inflammation. Acne by zone (forehead=digestion, cheeks=lungs, chin=hormones). Dryness, swelling, dark patches.
+
+MANDATORY RULE: If you see ANY yellowing, discoloration, abnormal coating, lines, swelling, or unusual appearance, you MUST set "concerns_detected": true and describe the finding specifically. Do NOT say "looks healthy" unless the image truly shows zero traditional warning signs.
+
+Respond in EXACTLY this JSON (no extra text before or after):
 {
-  "clear": true or false,
+  "clear": true,
   "findings": ["specific observation 1", "specific observation 2", "specific observation 3"],
-  "concerns_detected": true or false,
-  "suggested_conditions": ["condition_key_1", "condition_key_2"],
+  "concerns_detected": true,
+  "suggested_conditions": ["liver", "digestive"],
   "herbs": [
-    {"name": "Herb Name", "latin": "Latin name", "what": "what it supports", "how": "how to take", "potency": "high|moderate|mild"},
-    {"name": "Herb Name", "latin": "Latin name", "what": "...", "how": "...", "potency": "..."},
-    {"name": "Herb Name", "latin": "Latin name", "what": "...", "how": "...", "potency": "..."}
+    {"name": "Milk Thistle", "latin": "Silybum marianum", "what": "Traditional liver support", "how": "300mg standardized extract daily", "potency": "high"},
+    {"name": "Dandelion Root", "latin": "Taraxacum officinale", "what": "Liver and digestive bitter", "how": "Tea or tincture, 2x daily", "potency": "moderate"},
+    {"name": "Burdock Root", "latin": "Arctium lappa", "what": "Blood and lymph cleanser", "how": "Decoction, 1 cup daily", "potency": "moderate"}
   ]
 }
 
-Rules:
-- "clear": false ONLY if photo is too blurry/dark/cropped to make any observation
-- If clear: write 2-4 SPECIFIC findings about what you actually see (color, texture, marks, symmetry)
-- "concerns_detected": true if you see signs traditionally associated with imbalance (pale tongue, yellow sclera, ridged nails, dark circles, breakouts in zones, etc.)
-- "concerns_detected": false ONLY if photo shows healthy, balanced presentation with no traditional warning signs
-- Always include 3 supportive herbs from traditional Western/Eastern herbalism
-- Educational language only — no medical claims, no diagnosis
-
-Common condition keys: digestive, liver, kidney, adrenal, thyroid, circulatory, immune, skin, nervous, hormonal, blood_sugar, inflammation`;
+Set "clear": false ONLY if the photo is genuinely too blurry, too dark, or too cropped to observe anything. Otherwise, always provide observations.`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -54,7 +70,7 @@ Common condition keys: digestive, liver, kidney, adrenal, thyroid, circulatory, 
         messages: [{
           role: 'user',
           content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: image } },
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: cleanBase64 } },
             { type: 'text', text: prompt }
           ]
         }]
@@ -62,23 +78,33 @@ Common condition keys: digestive, liver, kidney, adrenal, thyroid, circulatory, 
     });
 
     const data = await response.json();
+    
+    // Debug: log full Claude response
+    console.log('Claude raw response:', JSON.stringify(data));
+    
     const text = data.content?.[0]?.text || '';
+    console.log('Claude text:', text);
 
     let parsed;
     try {
       const match = text.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('No JSON found in Claude response');
       parsed = JSON.parse(match[0]);
     } catch (e) {
+      // ✅ Smarter fallback: if Claude responded but we couldn't parse, return the raw text as a finding
       parsed = {
         clear: true,
-        findings: ['Photo received and reviewed'],
-        concerns_detected: false,
-        suggested_conditions: [],
+        findings: text 
+          ? ['Photo reviewed — see notes below', text.substring(0, 200)]
+          : ['Photo could not be analyzed clearly'],
+        concerns_detected: !!text, // if Claude said anything, assume something was noted
+        suggested_conditions: ['general'],
         herbs: [
-          { name: 'Nettle', latin: 'Urtica dioica', what: 'Mineral-rich support for vitality', how: 'Infusion, 1–2 cups daily', potency: 'moderate' },
-          { name: 'Tulsi', latin: 'Ocimum sanctum', what: 'Adaptogen for stress balance', how: 'Tea, 2–3 cups daily', potency: 'moderate' },
-          { name: 'Ginger', latin: 'Zingiber officinale', what: 'Warming digestion support', how: 'Fresh tea or capsule', potency: 'mild' }
-        ]
+          { name: 'Nettle', latin: 'Urtica dioica', what: 'Broad mineral and vitality support', how: 'Infusion, 1–2 cups daily', potency: 'moderate' },
+          { name: 'Dandelion Root', latin: 'Taraxacum officinale', what: 'Liver and digestive support', how: 'Tea or tincture, 2x daily', potency: 'moderate' },
+          { name: 'Tulsi', latin: 'Ocimum sanctum', what: 'Adaptogen for stress and balance', how: 'Tea, 2–3 cups daily', potency: 'moderate' }
+        ],
+        _debug: { rawText: text, claudeResponse: data }
       };
     }
 
@@ -88,6 +114,11 @@ Common condition keys: digestive, liver, kidney, adrenal, thyroid, circulatory, 
       body: JSON.stringify(parsed)
     };
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    console.error('Function error:', err);
+    return { 
+      statusCode: 500, 
+      body: JSON.stringify({ error: err.message, stack: err.stack }) 
+    };
   }
 };
+```
