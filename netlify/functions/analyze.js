@@ -43,6 +43,20 @@ SKIN/FACE: Yellow undertone → liver. Redness → inflammation. Acne by zone (f
 MANDATORY RULE: If you see ANY yellowing, discoloration, abnormal coating, lines, swelling, or unusual appearance, you MUST set "concerns_detected": true and describe the finding specifically. Do NOT say "looks healthy" unless the image truly shows zero traditional warning signs.
 
 Respond in EXACTLY this JSON (no extra text before or after):
+// BEFORE:
+headers: {
+  'Content-Type': 'application/json',
+  'x-api-key': process.env.ANTHROPIC_API_KEY,
+  'anthropic-version': '2023-06-01'
+},
+
+// AFTER:
+headers: {
+  'Content-Type': 'application/json',
+  'x-api-key': process.env.ANTHROPIC_API_KEY,
+  'anthropic-version': '2023-06-01',
+  'anthropic-beta': 'prompt-caching-2024-07-31'   // ← ADD THIS
+},
 {
   "clear": true,
   "findings": ["specific observation 1", "specific observation 2", "specific observation 3"],
@@ -64,18 +78,38 @@ Set "clear": false ONLY if the photo is genuinely too blurry, too dark, or too c
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1500,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: mediaType, data: cleanBase64 } },
-            { type: 'text', text: prompt }
-          ]
-        }]
-      })
-    });
+     // BEFORE:
+body: JSON.stringify({
+  model: 'claude-sonnet-4-5',
+  max_tokens: 3500,
+  messages: [{
+    role: 'user',
+    content: [
+      { type: 'image', source: { type: 'base64', media_type: mediaType, data: cleanBase64 } },
+      { type: 'text', text: prompt }
+    ]
+  }]
+})
+
+// AFTER:
+body: JSON.stringify({
+  model: 'claude-sonnet-4-5',
+  max_tokens: 3500,
+  system: [
+    {
+      type: 'text',
+      text: prompt,
+      cache_control: { type: 'ephemeral' }   // ← caches the big prompt block
+    }
+  ],
+  messages: [{
+    role: 'user',
+    content: [
+      { type: 'image', source: { type: 'base64', media_type: mediaType, data: cleanBase64 } },
+      { type: 'text', text: areaContext }    // ← just the dynamic part stays here
+    ]
+  }]
+})
 
     const data = await response.json();
     
