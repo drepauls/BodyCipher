@@ -99,7 +99,7 @@ body: JSON.stringify({
     {
       type: 'text',
       text: prompt,
-      cache_control: { type: 'ephemeral' }   // ← caches the big prompt block
+      cache_control: { type: 'ephemeral', ttl: '1h' }
     }
   ],
   messages: [{
