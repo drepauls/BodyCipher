@@ -2335,7 +2335,150 @@ function init() {
     );
     window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
   }
+// ═══════════════════════════════════════════════════════════
+// 🌿 CLEAN OVERRIDE — fixes all photo + Claude bugs in one shot
+// ═══════════════════════════════════════════════════════════
 
+window.gotPhoto = function(e) {
+  const f = e.target.files[0];
+  if (!f || !f.type.startsWith('image/')) return;
+  const r = new FileReader();
+  r.onload = ev => compressAndShow(ev.target.result);
+  r.readAsDataURL(f);
+};
+
+window.dropPhoto = function(e) {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) {
+    const r = new FileReader();
+    r.onload = ev => compressAndShow(ev.target.result);
+    r.readAsDataURL(f);
+  }
+};
+
+window.compressAndShow = function(dataUrl) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const maxDim = 1024;
+    let width = img.width;
+    let height = img.height;
+    if (width > height) {
+      if (width > maxDim) { height = Math.round((height * maxDim) / width); width = maxDim; }
+    } else {
+      if (height > maxDim) { width = Math.round((width * maxDim) / height); height = maxDim; }
+    }
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+    const compressed = canvas.toDataURL('image/jpeg', 0.8);
+    console.log('Compressed: ' + (dataUrl.length/1024).toFixed(0) + 'KB → ' + (compressed.length/1024).toFixed(0) + 'KB');
+    showPhoto(compressed);
+  };
+  img.onerror = () => alert('Could not process image.');
+  img.src = dataUrl;
+};
+
+window.analyzeWithRetry = async function(symSummary, userNotes) {
+  if (!photoData) {
+    return runAnalysis(symSummary, userNotes);
+  }
+  go('loading');
+  document.getElementById('loadMsg').textContent = 'Sending photo to Claude...';
+  try {
+    const base64 = photoData.includes(',') ? photoData.split(',')[1] : photoData;
+    const areas = [...document.querySelectorAll('.apill.on')].map(b => b.dataset.a);
+    document.getElementById('loadMsg').textContent = 'Analyzing photo (' + Math.round(base64.length/1024) + 'KB)...';
+    const res = await fetch('/.netlify/functions/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64, areas })
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error('Server error: ' + res.status + ' — ' + errText.slice(0,200));
+    }
+    const data = await res.json();
+    console.log('Claude response:', data);
+    if (data.error) throw new Error(data.error);
+    if (data.clear === false) {
+      alert("📷 Photo unclear — please try another or describe your symptoms.");
+      resetPhoto();
+      go('manual');
+      return;
+    }
+    return displayClaudeResults(data, symSummary, userNotes);
+  } catch (err) {
+    console.error('Photo analysis error:', err);
+    alert('⚠️ ' + err.message);
+    return runAnalysis(symSummary, userNotes);
+  }
+};
+
+window.displayClaudeResults = function(data, symSummary, userNotes) {
+  const findings = data.findings || [];
+  const herbs = data.herbs || [];
+  const concerns = data.concerns_detected;
+
+  let html = '<div style="padding:16px">';
+  html += '<div style="text-align:center;margin-bottom:20px">';
+  html += '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#000;margin-bottom:4px">Your Inquiry Results</div>';
+  html += '<div style="font-size:11px;color:#444">Educational reference only — not medical advice</div>';
+  html += '</div>';
+
+  if (findings.length) {
+    html += '<div class="herb-card">';
+    html += '<div class="herb-condition">📷 Photo Observations</div>';
+    findings.forEach(f => {
+      html += '<div style="font-size:14px;color:#111;line-height:1.7;margin-bottom:8px;padding-left:14px;position:relative">';
+      html += '<span style="position:absolute;left:0;color:var(--acc)">→</span> ' + f;
+      html += '</div>';
+    });
+    if (concerns) {
+      html += '<div style="margin-top:14px;padding:12px;background:rgba(232,93,38,.08);border-left:3px solid var(--acc);border-radius:6px;font-size:13px;color:#5a3000">';
+      html += '<strong>Traditional concern noted</strong> — see herbs below and consult a healthcare provider for proper evaluation.';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
+  if (symSummary || userNotes) {
+    html += '<div class="herb-card">';
+    html += '<div class="herb-condition">📋 Reported Symptoms</div>';
+    if (symSummary) html += '<div style="font-size:13px;color:#111;line-height:1.7;white-space:pre-wrap;margin-bottom:8px">' + symSummary.replace(/\n/g, '<br>') + '</div>';
+    if (userNotes) html += '<div style="font-size:13px;color:#111;line-height:1.7;font-style:italic">' + userNotes + '</div>';
+    html += '</div>';
+  }
+
+  if (herbs.length) {
+    html += '<div class="herb-card">';
+    html += '<div class="herb-condition">🌿 Suggested Herbal Support</div>';
+    herbs.forEach(h => {
+      html += '<div class="hcard">';
+      html += '<div class="hcard-head">';
+      html += '<div><div class="hcard-name">' + h.name + '</div><div class="hcard-latin">' + (h.latin||'') + '</div></div>';
+      if (h.potency) html += '<span class="pot ' + h.potency + '">' + h.potency + '</span>';
+      html += '</div>';
+      if (h.what) html += '<div class="hcard-what">' + h.what + '</div>';
+      if (h.how) html += '<div style="font-size:12px;color:#444;line-height:1.6"><strong>How to use:</strong> ' + h.how + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="disc-box" style="margin-top:18px">⚠ Educational Reference Only — Not medical advice. Not a diagnosis. Consult a licensed healthcare provider before using any herb. Emergency? Call 911.</div>';
+  html += '<div style="display:flex;gap:8px;margin-top:14px">';
+  html += '<button class="post-btn" onclick="saveInquiry()" style="flex:1">💾 Save</button>';
+  html += '<button class="post-btn" onclick="emailInquiry()" style="flex:1">📧 Email</button>';
+  html += '</div>';
+  html += '</div>';
+
+  document.getElementById('s-results').innerHTML = html;
+  go('results');
+};
+
+console.log('✅ BodyCipher overrides loaded');
 </script>
 </body>
 </html>
