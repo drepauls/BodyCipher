@@ -1,4 +1,3 @@
-```javascript
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
@@ -42,21 +41,11 @@ SKIN/FACE: Yellow undertone → liver. Redness → inflammation. Acne by zone (f
 
 MANDATORY RULE: If you see ANY yellowing, discoloration, abnormal coating, lines, swelling, or unusual appearance, you MUST set "concerns_detected": true and describe the finding specifically. Do NOT say "looks healthy" unless the image truly shows zero traditional warning signs.
 
-Respond in EXACTLY this JSON (no extra text before or after):
-// BEFORE:
-headers: {
-  'Content-Type': 'application/json',
-  'x-api-key': process.env.ANTHROPIC_API_KEY,
-  'anthropic-version': '2023-06-01'
-},
+MANDATORY REMEDY RULE: Always return herbal remedies in the "herbs" array. Do not return pharmaceuticals, procedures, diagnoses, prescriptions, or non-herbal treatments. Every herb must include name, latin, what, how, and potency.
 
-// AFTER:
-headers: {
-  'Content-Type': 'application/json',
-  'x-api-key': process.env.ANTHROPIC_API_KEY,
-  'anthropic-version': '2023-06-01',
-  'anthropic-beta': 'prompt-caching-2024-07-31'   // ← ADD THIS
-},
+MANDATORY DISCLAIMER RULE: Always include the "disclaimer_banner" field exactly as shown so it can be displayed after every result.
+
+Respond in EXACTLY this JSON (no extra text before or after):
 {
   "clear": true,
   "findings": ["specific observation 1", "specific observation 2", "specific observation 3"],
@@ -66,7 +55,8 @@ headers: {
     {"name": "Milk Thistle", "latin": "Silybum marianum", "what": "Traditional liver support", "how": "300mg standardized extract daily", "potency": "high"},
     {"name": "Dandelion Root", "latin": "Taraxacum officinale", "what": "Liver and digestive bitter", "how": "Tea or tincture, 2x daily", "potency": "moderate"},
     {"name": "Burdock Root", "latin": "Arctium lappa", "what": "Blood and lymph cleanser", "how": "Decoction, 1 cup daily", "potency": "moderate"}
-  ]
+  ],
+  "disclaimer_banner": "Educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 should use BodyCipher only with parent or guardian consent and healthcare-provider guidance."
 }
 
 Set "clear": false ONLY if the photo is genuinely too blurry, too dark, or too cropped to observe anything. Otherwise, always provide observations.`;
@@ -78,38 +68,18 @@ Set "clear": false ONLY if the photo is genuinely too blurry, too dark, or too c
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
       },
-     // BEFORE:
-body: JSON.stringify({
-  model: 'claude-sonnet-4-5',
-  max_tokens: 3500,
-  messages: [{
-    role: 'user',
-    content: [
-      { type: 'image', source: { type: 'base64', media_type: mediaType, data: cleanBase64 } },
-      { type: 'text', text: prompt }
-    ]
-  }]
-})
-
-// AFTER:
-body: JSON.stringify({
-  model: 'claude-sonnet-4-5',
-  max_tokens: 3500,
-  system: [
-    {
-      type: 'text',
-      text: prompt,
-      cache_control: { type: 'ephemeral', ttl: '1h' }
-    }
-  ],
-  messages: [{
-    role: 'user',
-    content: [
-      { type: 'image', source: { type: 'base64', media_type: mediaType, data: cleanBase64 } },
-      { type: 'text', text: areaContext }    // ← just the dynamic part stays here
-    ]
-  }]
-})
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1500,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: cleanBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
 
     const data = await response.json();
     
@@ -138,9 +108,20 @@ body: JSON.stringify({
           { name: 'Dandelion Root', latin: 'Taraxacum officinale', what: 'Liver and digestive support', how: 'Tea or tincture, 2x daily', potency: 'moderate' },
           { name: 'Tulsi', latin: 'Ocimum sanctum', what: 'Adaptogen for stress and balance', how: 'Tea, 2–3 cups daily', potency: 'moderate' }
         ],
+        disclaimer_banner: 'Educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 should use BodyCipher only with parent or guardian consent and healthcare-provider guidance.',
         _debug: { rawText: text, claudeResponse: data }
       };
     }
+
+    if (!Array.isArray(parsed.herbs) || parsed.herbs.length === 0) {
+      parsed.herbs = [
+        { name: 'Nettle', latin: 'Urtica dioica', what: 'Traditional mineral-rich vitality support', how: 'Infusion, 1–2 cups daily', potency: 'moderate' },
+        { name: 'Dandelion Root', latin: 'Taraxacum officinale', what: 'Traditional digestive and liver support', how: 'Tea or tincture, 1–2x daily', potency: 'moderate' },
+        { name: 'Tulsi', latin: 'Ocimum sanctum', what: 'Traditional adaptogenic stress support', how: 'Tea, 1–3 cups daily', potency: 'moderate' }
+      ];
+    }
+
+    parsed.disclaimer_banner = 'Educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 should use BodyCipher only with parent or guardian consent and healthcare-provider guidance.';
 
     return {
       statusCode: 200,
@@ -155,4 +136,3 @@ body: JSON.stringify({
     };
   }
 };
-```
