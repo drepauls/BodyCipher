@@ -1212,123 +1212,8 @@ async function analyzeWithRetry(symSummary, userNotes) {
     });
 
     const data = await res.json();
+    if (data.error) throw new Error(data.error);
 
-    if (data.clear === false) {
-      photoAttempts++;
-      if (photoAttempts === 1) {
-        showPhotoRetryBanner("📷 We couldn't get a clear read — please try another photo.");
-        resetPhoto();
-        go('manual');
-        return;
-      } else {
-        showPhotoRetryBanner("📝 Still having trouble — please describe your symptoms below.");
-        resetPhoto();
-        go('manual');
-        const sym = document.getElementById('symText');
-        if (sym) { sym.focus(); sym.scrollIntoView({behavior:'smooth', block:'center'}); }
-        photoAttempts = 0;
-        return;
-      }
-    }
-
-    photoAttempts = 0;
-    return runAnalysisWithClaudeFindings(symSummary, userNotes, data);
-
-  } catch (err) {
-    photoAttempts = 0;
-    return runAnalysis(symSummary, userNotes);
-  }
-}
-
-
-async function runAnalysisWithClaudeFindings(symSummary, userNotes, claudeData) {
-  const conditionKeywords = (claudeData.suggested_conditions || []).join(' ');
-  const enhancedNotes = (userNotes || '') + ' ' + conditionKeywords;
-  window._claudePhotoFindings = claudeData.findings || [];
-  window._claudeHerbs = claudeData.herbs || [];
-  window._forceFullResults = true;
-  return runAnalysis(symSummary, enhancedNotes);
-}
-
-function showPhotoRetryBanner(msg) {
-  let banner = document.getElementById('photoRetryBanner');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.id = 'photoRetryBanner';
-    banner.style.cssText = 'background:#fff8e0;border:1.5px solid #d4a030;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;color:#5a3e00;line-height:1.6;font-weight:500';
-    const target = document.getElementById('s-manual');
-    if (target) target.insertBefore(banner, target.firstChild);
-  }
-  banner.textContent = msg;
-  banner.style.display = 'block';
-  banner.scrollIntoView({behavior:'smooth', block:'center'});
-  setTimeout(() => { if (banner) banner.style.display = 'none'; }, 12000);
-}async function runAnalysisWithClaudeFindings(symSummary, userNotes, claudeData) {
-  const conditionKeywords = (claudeData.suggested_conditions || []).join(' ');
-  const enhancedNotes = (userNotes || '') + ' ' + conditionKeywords;
-  window._claudePhotoFindings = claudeData.findings || [];
-  window._claudeHerbs = claudeData.herbs || [];
-  window._forceFullResults = true;
-  return runAnalysis(symSummary, enhancedNotes);
-}
-
-function showPhotoRetryBanner(msg) {
-  let banner = document.getElementById('photoRetryBanner');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.id = 'photoRetryBanner';
-    banner.style.cssText = 'background:#fff8e0;border:1.5px solid #d4a030;border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;color:#5a3e00;line-height:1.6;font-weight:500';
-    const target = document.getElementById('s-manual');
-    if (target) target.insertBefore(banner, target.firstChild);
-  }
-  banner.textContent = msg;
-  banner.style.display = 'block';
-  banner.scrollIntoView({behavior:'smooth', block:'center'});
-  setTimeout(() => { if (banner) banner.style.display = 'none'; }, 12000);
-}
-  async function analyzeWithRetry(symSummary, userNotes) {
-  if (!photoData) {
-    photoAttempts = 0;
-    return runAnalysis(symSummary, userNotes);
-  }
-
-  go('loading');
-  document.getElementById('loadMsg').textContent = 'Reviewing your photo…';
-
-  try {
-    const base64 = photoData.includes(',') ? photoData.split(',')[1] : photoData;
-    const areas = [...document.querySelectorAll('.apill.on')].map(b => b.dataset.a);
-
-    const res = await fetch('/.netlify/functions/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: base64, areas })
-    });
-
-    const data = await res.json();
-
-    // ... rest of your existing code stays the same
-async function analyzeWithRetry(symSummary, userNotes) {
-  if (!photoData) {
-    photoAttempts = 0;
-    return runAnalysis(symSummary, userNotes);
-  }
-
-  go('loading');
-  document.getElementById('loadMsg').textContent = 'Reviewing your photo…';
-
-  try {
-    const base64 = photoData.includes(',') ? photoData.split(',')[1] : photoData;
-    const areas = [...document.querySelectorAll('.apill.on')].map(b => b.dataset.a);
-
-    const res = await fetch('/.netlify/functions/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: base64, areas })
-    });
-
-    const data = await res.json();
-    // Photo unclear → retry flow
     if (data.clear === false) {
       photoAttempts++;
       if (photoAttempts === 1) {
@@ -1348,21 +1233,8 @@ async function analyzeWithRetry(symSummary, userNotes) {
     }
 
     photoAttempts = 0;
-
-// Photo was analyzed by Claude — always run full results with findings
-return runAnalysisWithClaudeFindings(symSummary, userNotes, data);
-    }
-
-    // Photo had concerns OR user provided symptoms → run full results
-    // Inject Claude's findings into the offline analysis
     return runAnalysisWithClaudeFindings(symSummary, userNotes, data);
 
-  } catch (err) {
-    console.warn('Photo clarity check failed:', err);
-    photoAttempts = 0;
-    return runAnalysis(symSummary, userNotes);
-  }
-}
   } catch (err) {
     console.warn('Photo analysis failed, running offline:', err);
     photoAttempts = 0;
@@ -1376,7 +1248,7 @@ async function runAnalysisWithClaudeFindings(symSummary, userNotes, claudeData) 
 
   window._claudePhotoFindings = claudeData.findings || [];
   window._claudeHerbs = claudeData.herbs || [];
-  window._forceFullResults = true;   // ← NEW: bypass the "Looking Good" shortcut
+  window._forceFullResults = true;
 
   return runAnalysis(symSummary, enhancedNotes);
 }
