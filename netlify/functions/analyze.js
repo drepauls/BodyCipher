@@ -56,7 +56,7 @@ Respond in EXACTLY this JSON (no extra text before or after):
     {"name": "Dandelion Root", "latin": "Taraxacum officinale", "what": "Liver and digestive bitter", "how": "Tea or tincture, 2x daily", "potency": "moderate"},
     {"name": "Burdock Root", "latin": "Arctium lappa", "what": "Blood and lymph cleanser", "how": "Decoction, 1 cup daily", "potency": "moderate"}
   ],
-  "disclaimer_banner": "Educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 should use BodyCipher only with parent or guardian consent and healthcare-provider guidance."
+  "disclaimer_banner": "AI-assisted educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. AI-generated observations and herbal suggestions may be incomplete or inaccurate. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 may use BodyCipher only with parent or legal guardian consent and healthcare-provider guidance."
 }
 
 Set "clear": false ONLY if the photo is genuinely too blurry, too dark, or too cropped to observe anything. Otherwise, always provide observations.`;
@@ -108,7 +108,7 @@ Set "clear": false ONLY if the photo is genuinely too blurry, too dark, or too c
           { name: 'Dandelion Root', latin: 'Taraxacum officinale', what: 'Liver and digestive support', how: 'Tea or tincture, 2x daily', potency: 'moderate' },
           { name: 'Tulsi', latin: 'Ocimum sanctum', what: 'Adaptogen for stress and balance', how: 'Tea, 2–3 cups daily', potency: 'moderate' }
         ],
-        disclaimer_banner: 'Educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 should use BodyCipher only with parent or guardian consent and healthcare-provider guidance.',
+        disclaimer_banner: 'AI-assisted educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. AI-generated observations and herbal suggestions may be incomplete or inaccurate. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 may use BodyCipher only with parent or legal guardian consent and healthcare-provider guidance.',
         _debug: { rawText: text, claudeResponse: data }
       };
     }
@@ -121,7 +121,7 @@ Set "clear": false ONLY if the photo is genuinely too blurry, too dark, or too c
       ];
     }
 
-    parsed.disclaimer_banner = 'Educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 should use BodyCipher only with parent or guardian consent and healthcare-provider guidance.';
+    parsed.disclaimer_banner = 'AI-assisted educational wellness information only. Not medical advice, diagnosis, treatment, or a substitute for care from a qualified healthcare provider. AI-generated observations and herbal suggestions may be incomplete or inaccurate. Consult a healthcare provider before using herbs, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 may use BodyCipher only with parent or legal guardian consent and healthcare-provider guidance.';
 
     return {
       statusCode: 200,
