@@ -1136,9 +1136,31 @@
 
   /* ── MOBILE ── */
   @media (max-width: 900px) {
-    nav { padding: 18px 24px; }
+    nav { padding: 14px 18px; }
     nav.scrolled { padding: 12px 24px; }
-    .nav-links { display: none; }
+    .nav-links {
+      position: absolute;
+      top: 100%;
+      left: 18px;
+      right: 18px;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(8,8,8,0.95);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+    }
+    nav.menu-open .nav-links { display: grid; }
+    .nav-links a {
+      display: block;
+      padding: 10px 8px;
+      text-align: center;
+      border: 1px solid rgba(245,230,66,0.12);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+    }
+    .nav-cta { padding: 10px 8px; }
     .nav-hamburger { display: block; }
     .what-grid, .methods-intro, .traditions-grid { grid-template-columns: 1fr; gap: 40px; }
     .pillars-grid { grid-template-columns: 1fr; }
@@ -1150,7 +1172,9 @@
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
     .footer-bottom { flex-direction: column; text-align: center; }
     .section-inner { padding: 0 24px; }
-    .app-frame-wrap { height: 560px; }
+    section { padding-top: 90px; padding-bottom: 90px; }
+    #hero { min-height: 92vh; padding: 110px 24px 70px; }
+    .app-frame-wrap { height: 480px; }
   }
 
   /* ── ABOUT ── */
@@ -1545,7 +1569,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#app-section" class="nav-cta">Beta Trial</a></li>
   </ul>
-  <div class="nav-hamburger" onclick="this.classList.toggle('active')">
+  <div class="nav-hamburger" onclick="this.classList.toggle('active');document.getElementById('mainNav').classList.toggle('menu-open')">
     <span></span><span></span><span></span>
   </div>
 </nav>
@@ -1754,7 +1778,7 @@
 
     <div class="methods-disclaimer reveal">
       <div class="disclaimer-heading">⚠ Important Wellness Disclosure</div>
-      <p class="disclaimer-text">BodyCipher is a wellness education tool, not a medical device or diagnostic service. The observational readings, botanical suggestions, and wellness guidance provided through this application are for educational and informational purposes only. They are not intended to observe, support, cure, or prevent any disease or medical condition. These statements have not been evaluated by the Food and Drug Administration. Always consult a qualified healthcare provider before beginning any herbal regimen, especially if you are pregnant, nursing, taking ongoing medications, or managing a health condition. BodyCipher does not replace professional medical advice, assessment, or care.</p>
+      <p class="disclaimer-text">BodyCipher is a wellness education tool, not a medical device or diagnostic service. The observational readings, herbal remedy suggestions, and wellness guidance provided through this application are for educational and informational purposes only. They are not intended to diagnose, treat, cure, or prevent any disease or medical condition. These statements have not been evaluated by the Food and Drug Administration. Always consult a qualified healthcare provider before beginning any herbal regimen, especially if you are pregnant, nursing, taking ongoing medications, managing a health condition, or under 18. Users under 18 should use BodyCipher only with parent or guardian consent and healthcare-provider guidance. BodyCipher does not replace professional medical advice, assessment, or care.</p>
     </div>
   </div>
 </section>
@@ -1917,6 +1941,15 @@
       </div>
       <div class="faq-item reveal">
         <button class="faq-q" onclick="toggleFaq(this)">
+          Can people under 18 use BodyCipher?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">
+          <p>Users under 18 should use BodyCipher only with parent or guardian consent and guidance from a qualified healthcare provider. Herbal suggestions are educational only and should not be used by minors without adult supervision and professional input.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
           Do I need to create an account to use it?
           <span class="faq-icon">+</span>
         </button>
@@ -2013,7 +2046,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p class="footer-legal">BodyCipher is a wellness education tool for informational and educational purposes only. Not intended to diagnose, treat, cure, or prevent any disease or medical condition. These statements have not been evaluated by the Food and Drug Administration. Always consult a qualified healthcare provider before beginning any botanical regimen.</p>
+      <p class="footer-legal">BodyCipher is a wellness education tool for informational and educational purposes only. Not intended to diagnose, treat, cure, or prevent any disease or medical condition. These statements have not been evaluated by the Food and Drug Administration. Always consult a qualified healthcare provider before beginning any botanical regimen, especially if pregnant, nursing, taking medication, managing a health condition, or under 18. Users under 18 should use BodyCipher only with parent or guardian consent and healthcare-provider guidance.</p>
       <p class="footer-copy">© 2025 BodyCipher</p>
     </div>
   </div>
