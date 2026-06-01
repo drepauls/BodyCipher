@@ -1677,7 +1677,7 @@
     <div class="video-outer reveal">
       <div class="video-frame">
         <iframe
-          src="https://www.youtube.com/embed/_9G3h-A1VS8?rel=0&modestbranding=1&color=white"
+          src="https://www.youtube.com/embed/ohn0qQzlV3Y?rel=0&modestbranding=1&color=white"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
           style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
@@ -1893,6 +1893,14 @@
         <a href="https://buy.stripe.com/14AeVedkN1qR5Rgf73fMA01" target="_blank" class="price-btn price-btn-outline">Best Value</a>
       </div>
     </div>
+    <!-- PHOTO PRIVACY CALLOUT -->
+    <aside class="reveal" aria-label="Photo privacy" style="max-width:760px;margin:36px auto 0;padding:18px 22px;background:linear-gradient(180deg,rgba(245,230,66,0.10),rgba(245,230,66,0.03));border:1.5px solid rgba(245,230,66,0.45);border-radius:14px;display:flex;align-items:center;gap:18px;text-align:left;">
+      <div style="font-size:30px;line-height:1;flex-shrink:0;" aria-hidden="true">🔒</div>
+      <div style="font-size:14.5px;line-height:1.55;color:var(--parchment);">
+        <strong style="color:var(--gold);">Your photos stay private.</strong>
+        Any image you upload is encrypted in transit, used only to generate your reading, and <strong>never stored, archived, or used to train AI</strong>. Analysis runs through our AI provider under privacy-preserving API terms — no human at BodyCipher views your photos.
+      </div>
+    </aside>
   </div>
 </section>
 
@@ -1954,6 +1962,15 @@
       <h2 class="section-title">What People<br><em>Ask</em></h2>
     </div>
     <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What happens to the photos I upload? Are they stored?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">
+          <p>Your photos are treated as confidential personal data. Each image is sent over an encrypted connection (HTTPS), passed to our AI vision provider for a single analysis pass, and never stored, archived, or reviewed by any human at BodyCipher. We do not — and our API provider does not — use your images to train AI models. After your reading is generated, the image is discarded. We never sell, share, or repurpose any image you submit.</p>
+        </div>
+      </div>
       <div class="faq-item reveal">
         <button class="faq-q" onclick="toggleFaq(this)">
           Is BodyCipher a medical tool or diagnostic app?
