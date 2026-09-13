@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodyCipher — Practitioner Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b140d;
+      --surf: #111a13;
+      --border: #1e4a2e;
+      --gold: #f5e642;
+      --gold-dim: #c9b800;
+      --smoke: #6a6460;
+      --txt: #e8e4dc;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-mono: 'DM Mono', monospace;
+      --font-body: 'Outfit', sans-serif;
+      --red: #e85d26;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--txt);
+      font-family: var(--font-body);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    body { padding: 24px; }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .login-brand .wordmark {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--gold);
+    }
+    .login-brand .tagline {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--smoke);
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .login-card {
+      background: var(--surf);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px 32px;
+    }
+
+    .login-card h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--txt);
+      margin-bottom: 6px;
+    }
+    .login-card .sub {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      color: var(--smoke);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .field-group {
+      margin-bottom: 18px;
+    }
+    .field-group label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--smoke);
+      margin-bottom: 8px;
+    }
+    .field-group input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--txt);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field-group input:focus {
+      border-color: var(--gold-dim);
+    }
+    .field-group input::placeholder {
+      color: #3a3a38;
+    }
+
+    .login-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 13px;
+      background: var(--gold);
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .login-btn:hover { background: #fff176; }
+    .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error-msg {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: rgba(232,93,38,0.12);
+      border: 1px solid rgba(232,93,38,0.3);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--red);
+      letter-spacing: 0.06em;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 28px;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--smoke);
+    }
+    .login-footer a {
+      color: var(--gold-dim);
+      text-decoration: none;
+    }
+    .login-footer a:hover { color: var(--gold); }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #111;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="wordmark">BodyCipher</div>
+      <div class="tagline">Practitioner Access</div>
+    </div>
+
+    <div class="login-card">
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in to your practitioner account</p>
+
+      <div class="field-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+
+      <div class="field-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button class="login-btn" id="loginBtn" onclick="signIn()">Sign In</button>
+
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+    <div class="login-footer">
+      <a href="index.html">← Back to BodyCipher</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      Need access? <a href="mailto:andre@bodycipher.org?subject=Practitioner%20Access%20Request">Contact us</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPA_URL = 'https://nbdrxmhqmmzromghanhq.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iZHJ4bWhxbW16cm9tZ2hhbmhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjAzODUsImV4cCI6MjA5MTgzNjM4NX0.IKcz68pf73Sdw8YB52Kbvm3HqR6HgwCCHh-q93Rxvgc';
+    const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+    // If already logged in, go straight to app
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.href = 'app.html';
+    });
+
+    // Allow Enter key to submit
+    document.getElementById('password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') signIn();
+    });
+    document.getElementById('email').addEventListener('keydown', e => {
+      if (e.key === 'Enter') signIn();
+    });
+
+    async function signIn() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+      const errEl = document.getElementById('errorMsg');
+
+      if (!email || !password) {
+        showError('Please enter your email and password.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Signing in…';
+      errEl.style.display = 'none';
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+        showError(error.message === 'Invalid login credentials'
+          ? 'Incorrect email or password. Please try again.'
+          : error.message);
+      } else {
+        window.location.href = 'app.html';
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

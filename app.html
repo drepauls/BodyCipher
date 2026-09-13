@@ -415,6 +415,7 @@ input[type=range]{width:100%;accent-color:var(--acc);margin:10px 0;cursor:pointe
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <span id="badge">Trial</span>
+    <button id="logoutBtn" onclick="signOut()" style="display:none;font-size:9px;padding:4px 10px;border:1px solid rgba(232,93,38,0.4);border-radius:6px;background:transparent;color:#e85d26;cursor:pointer;letter-spacing:0.1em;font-family:inherit">Sign Out</button>
     <button id="backBtn" onclick="goHome()">← Home</button>
   </div>
 </header>
@@ -697,6 +698,17 @@ const CODES = new Set([
   'HERB041','HERB042','HERB043','HERB044','HERB045','HERB046','HERB047','HERB048','HERB049','HERB050',
   'HCDEV2025'
 ]);
+// ── SUPABASE AUTH ──────────────────────────────────────────
+const SUPA_URL = 'https://nbdrxmhqmmzromghanhq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iZHJ4bWhxbW16cm9tZ2hhbmhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjAzODUsImV4cCI6MjA5MTgzNjM4NX0.IKcz68pf73Sdw8YB52Kbvm3HqR6HgwCCHh-q93Rxvgc';
+let _supabase = null;
+let supaSession = null;
+
+async function signOut() {
+  if (_supabase) await _supabase.auth.signOut();
+  window.location.href = 'login.html';
+}
+
 let userCode = '';
 
 function checkAccess() {
@@ -716,9 +728,37 @@ function checkAccess() {
   postGateInit();
 }
 document.getElementById('gateInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkAccess(); });
-window.addEventListener('load', () => {
+
+window.addEventListener('load', async () => {
+  // Init Supabase client (CDN loaded at bottom of body)
+  if (window.supabase && window.supabase.createClient) {
+    _supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  }
+  // Check Supabase session first — practitioners bypass code gate
+  const sessionResult = _supabase ? await _supabase.auth.getSession() : { data: { session: null } };
+  const session = sessionResult.data.session;
+  if (session) {
+    supaSession = session;
+    userCode = 'PRACTITIONER';
+    document.getElementById('gate').style.display = 'none';
+    // Show logout button for practitioner accounts
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+    const badge = document.getElementById('badge');
+    if (badge) badge.textContent = session.user.email.split('@')[0].toUpperCase();
+    init();
+    postGateInit();
+    return;
+  }
+  // Fall back to trial code gate for beta users
   const s = sessionStorage.getItem('hc_code');
-  if (s && CODES.has(s)) { userCode = s; document.getElementById('gate').style.display = 'none'; document.getElementById('badge').textContent = s; init(); postGateInit(); }
+  if (s && CODES.has(s)) {
+    userCode = s;
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('badge').textContent = s;
+    init();
+    postGateInit();
+  }
 });
 
 
@@ -2442,5 +2482,6 @@ window.displayClaudeResults = function(data, symSummary, userNotes) {
 
 console.log('✅ BodyCipher overrides loaded');
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </body>
 </html>
