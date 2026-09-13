@@ -209,10 +209,10 @@
   <script>
     const SUPA_URL = 'https://nbdrxmhqmmzromghanhq.supabase.co';
     const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iZHJ4bWhxbW16cm9tZ2hhbmhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjAzODUsImV4cCI6MjA5MTgzNjM4NX0.IKcz68pf73Sdw8YB52Kbvm3HqR6HgwCCHh-q93Rxvgc';
-    const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+    const _supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
     // If already logged in, go straight to app
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    _supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) window.location.href = 'app.html';
     });
 
@@ -239,7 +239,7 @@
       btn.innerHTML = '<span class="spinner"></span>Signing in…';
       errEl.style.display = 'none';
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await _supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
         btn.disabled = false;
