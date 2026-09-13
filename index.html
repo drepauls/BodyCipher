@@ -1633,6 +1633,78 @@
   }
   .review-thanks strong { color: var(--gold); display: block; margin-bottom: 8px; font-size: 1.1rem; }
 
+
+  /* ── PRACTITIONERS ── */
+  #practitioners {
+    padding: 100px 0;
+    border-top: 1px solid var(--border);
+  }
+  .practitioner-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .practitioner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 56px;
+  }
+  .prac-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 36px 28px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .prac-card:hover {
+    border-color: var(--gold-dim);
+    transform: translateY(-4px);
+  }
+  .prac-icon {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+  .prac-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .prac-card p {
+    font-size: 0.9rem;
+    color: var(--ash);
+    line-height: 1.7;
+  }
+  .practitioner-cta {
+    text-align: center;
+  }
+  .prac-login-btn {
+    display: inline-block;
+    background: var(--gold);
+    color: #111;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 40px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    margin-bottom: 16px;
+  }
+  .prac-login-btn:hover { background: #fff176; }
+  .prac-access {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--smoke, #6a6460);
+    margin-top: 12px;
+  }
+  .prac-access a { color: var(--gold-dim); text-decoration: none; }
+  .prac-access a:hover { color: var(--gold); }
+
 </style>
 </head>
 <body>
@@ -1649,6 +1721,7 @@
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="coaching.html">Coaching</a></li>
     <li><a href="#about">About</a></li>
+    <li><a href="#practitioners">Practitioners</a></li>
     <li><a href="#app-section" class="nav-cta">Try the Beta</a></li>
   </ul>
   <div class="nav-hamburger" onclick="this.classList.toggle('active');document.getElementById('mainNav').classList.toggle('menu-open')">
@@ -1778,6 +1851,43 @@
         <strong>Thank you for your feedback!</strong>
         Your review has been submitted and will appear here once approved.
       </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="practitioners">
+  <div class="section-inner">
+    <div class="practitioner-header reveal">
+      <span class="section-label">Practitioners</span>
+      <h2 class="section-title">Built for <em>Practitioners</em></h2>
+      <p class="section-sub">BodyCipher gives wellness professionals a powerful tool to complement their practice — fast, visual, AI-assisted analysis your clients can actually see.</p>
+    </div>
+    <div class="practitioner-grid">
+      <div class="prac-card reveal">
+        <div class="prac-icon">👁</div>
+        <h3>Visual Body Analysis</h3>
+        <p>Upload photos of tongue, nails, eyes, and skin — BodyCipher maps findings to patterns your training already recognizes, in seconds.</p>
+      </div>
+      <div class="prac-card reveal">
+        <div class="prac-icon">🌿</div>
+        <h3>Herbal Recommendations</h3>
+        <p>Every analysis returns a personalized herbal protocol with dosage guidance, so you leave each session with a clear, shareable action plan.</p>
+      </div>
+      <div class="prac-card reveal">
+        <div class="prac-icon">🔒</div>
+        <h3>Private & Secure Login</h3>
+        <p>Your practitioner account keeps your sessions separate and private. No shared codes — just your dedicated login at any time.</p>
+      </div>
+      <div class="prac-card reveal">
+        <div class="prac-icon">📋</div>
+        <h3>Client-Ready Reports</h3>
+        <p>Walk clients through their results on-screen or print a clean summary — making your consultations more visual and more compelling.</p>
+      </div>
+    </div>
+    <div class="practitioner-cta reveal">
+      <a href="login.html" class="prac-login-btn">Practitioner Login</a>
+      <p class="prac-access">Need access? <a href="mailto:andre@bodycipher.org?subject=Practitioner%20Access%20Request">Contact us</a> to request a practitioner account.</p>
     </div>
   </div>
 </section>
