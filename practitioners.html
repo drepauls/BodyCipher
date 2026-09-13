@@ -52,12 +52,12 @@
       text-decoration: none;
       letter-spacing: 0.04em;
     }
-    .nav-links-right {
+    .nav-right {
       display: flex;
       gap: 24px;
       align-items: center;
     }
-    .nav-links-right a {
+    .nav-right a {
       font-family: var(--font-mono);
       font-size: 0.68rem;
       letter-spacing: 0.16em;
@@ -66,13 +66,12 @@
       text-decoration: none;
       transition: color 0.2s;
     }
-    .nav-links-right a:hover { color: var(--gold); }
+    .nav-right a:hover { color: var(--gold); }
     .nav-login {
-      border: 1px solid var(--gold-dim);
+      border: 1px solid var(--gold-dim) !important;
       color: var(--gold) !important;
       padding: 8px 20px;
       border-radius: 2px;
-      transition: all 0.2s !important;
     }
     .nav-login:hover {
       background: var(--gold) !important;
@@ -80,18 +79,18 @@
     }
 
     /* HERO */
-    .prac-hero {
-      min-height: 60vh;
+    .hero {
+      min-height: 55vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 140px 24px 80px;
+      padding: 140px 24px 60px;
       position: relative;
       overflow: hidden;
     }
-    .prac-hero::before {
+    .hero::before {
       content: '';
       position: absolute;
       inset: 0;
@@ -108,151 +107,210 @@
       margin-bottom: 20px;
       position: relative;
     }
-    .prac-hero h1 {
+    .hero h1 {
       font-family: var(--font-display);
-      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-size: clamp(2.8rem, 6vw, 4.8rem);
       font-weight: 600;
       line-height: 1.1;
       color: var(--txt);
       margin-bottom: 24px;
       position: relative;
     }
-    .prac-hero h1 em {
-      font-style: italic;
-      color: var(--gold);
-    }
-    .prac-hero p {
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero p {
       font-size: 1.05rem;
       color: var(--ash);
-      max-width: 600px;
+      max-width: 580px;
       line-height: 1.75;
       position: relative;
-      margin-bottom: 40px;
     }
-    .hero-cta {
-      display: inline-block;
-      background: var(--gold);
-      color: #111;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 15px 44px;
-      border-radius: 4px;
-      transition: background 0.2s;
-      position: relative;
-    }
-    .hero-cta:hover { background: #fff176; }
 
     /* FEATURES */
-    .features-section {
-      padding: 80px 24px 100px;
+    .features {
+      padding: 72px 24px 0;
       max-width: 1100px;
       margin: 0 auto;
     }
-    .features-label {
+    .section-label {
       font-family: var(--font-mono);
       font-size: 0.62rem;
       letter-spacing: 0.3em;
       text-transform: uppercase;
       color: var(--gold-dim);
-      text-align: center;
       display: block;
-      margin-bottom: 16px;
+      text-align: center;
+      margin-bottom: 14px;
     }
-    .features-title {
+    .section-title {
       font-family: var(--font-display);
-      font-size: clamp(2rem, 4vw, 3rem);
+      font-size: clamp(2rem, 4vw, 2.8rem);
       font-weight: 600;
       color: var(--txt);
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 52px;
     }
-    .features-title em { font-style: italic; color: var(--gold); }
+    .section-title em { font-style: italic; color: var(--gold); }
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
-      margin-bottom: 72px;
+      gap: 20px;
     }
     .feature-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 36px 28px;
+      padding: 32px 26px;
       transition: border-color 0.3s, transform 0.3s;
     }
     .feature-card:hover {
       border-color: var(--gold-dim);
       transform: translateY(-4px);
     }
-    .feature-icon {
-      font-size: 2rem;
-      margin-bottom: 18px;
-    }
+    .feature-icon { font-size: 1.8rem; margin-bottom: 16px; }
     .feature-card h3 {
       font-family: var(--font-display);
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 600;
       color: var(--gold);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .feature-card p {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: var(--ash);
       line-height: 1.75;
     }
 
-    /* ACCESS CTA */
-    .access-block {
+    /* FORM SECTION */
+    .form-section {
+      padding: 80px 24px 100px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .form-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 56px 40px;
-      text-align: center;
-      max-width: 680px;
-      margin: 0 auto;
+      padding: 52px 48px;
     }
-    .access-block h2 {
+    .form-card h2 {
       font-family: var(--font-display);
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 600;
       color: var(--txt);
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
-    .access-block h2 em { font-style: italic; color: var(--gold); }
-    .access-block p {
-      font-size: 0.95rem;
-      color: var(--ash);
-      line-height: 1.75;
-      margin-bottom: 32px;
+    .form-card h2 em { font-style: italic; color: var(--gold); }
+    .form-sub {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--smoke);
+      margin-bottom: 36px;
+      display: block;
     }
-    .access-email-link {
-      display: inline-block;
+    .field-group {
+      margin-bottom: 20px;
+    }
+    .field-group label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--smoke);
+      margin-bottom: 8px;
+    }
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      color: var(--txt);
+      outline: none;
+      transition: border-color 0.2s;
+      resize: none;
+    }
+    .field-group input::placeholder,
+    .field-group textarea::placeholder { color: #3a3a38; }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus { border-color: var(--gold-dim); }
+    .field-group select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6460' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
+    }
+    .field-group select option { background: #111a13; }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .submit-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 14px;
       background: var(--gold);
       color: #111;
+      border: none;
+      border-radius: 6px;
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 500;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      text-decoration: none;
-      padding: 15px 44px;
-      border-radius: 4px;
-      transition: background 0.2s;
-      margin-bottom: 20px;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
     }
-    .access-email-link:hover { background: #fff176; }
-    .access-note {
+    .submit-btn:hover { background: #fff176; }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .form-note {
       font-family: var(--font-mono);
-      font-size: 0.62rem;
+      font-size: 0.58rem;
       letter-spacing: 0.1em;
       color: var(--smoke);
+      text-align: center;
+      margin-top: 16px;
     }
-    .access-note a { color: var(--gold-dim); text-decoration: none; }
-    .access-note a:hover { color: var(--gold); }
+    .form-note a { color: var(--gold-dim); text-decoration: none; }
+    .form-note a:hover { color: var(--gold); }
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 32px 0 8px;
+    }
+    .success-msg .check { font-size: 2.5rem; margin-bottom: 16px; }
+    .success-msg h3 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+    .success-msg p {
+      font-size: 0.9rem;
+      color: var(--ash);
+      line-height: 1.7;
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #111;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* FOOTER */
     footer {
@@ -269,79 +327,286 @@
 
     @media (max-width: 640px) {
       nav { padding: 16px 20px; }
-      .access-block { padding: 40px 24px; }
-      .features-section { padding: 60px 16px 80px; }
+      .form-card { padding: 36px 24px; }
+      .field-row { grid-template-columns: 1fr; }
     }
+  
+    /* ── REVIEW SECTION ── */
+    .review-section {
+      padding: 80px 24px 100px;
+      border-top: 1px solid var(--border);
+    }
+    .review-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .review-sub {
+      font-size: 0.95rem;
+      color: var(--ash);
+      margin-bottom: 40px;
+      line-height: 1.7;
+    }
+    .review-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px 36px;
+      text-align: left;
+    }
+    .star-rating {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .star-rating input { display: none; }
+    .star-rating label {
+      font-size: 2rem;
+      color: var(--smoke);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label { color: var(--gold); }
+
   </style>
 </head>
 <body>
 
   <nav>
     <a href="index.html" class="nav-wordmark">BodyCipher</a>
-    <div class="nav-links-right">
+    <div class="nav-right">
       <a href="index.html">Home</a>
-      <a href="about.html">About</a>
       <a href="login.html" class="nav-login">Practitioner Login</a>
     </div>
   </nav>
 
-  <section class="prac-hero">
+  <section class="hero">
     <span class="eyebrow">For Wellness Professionals</span>
     <h1>Your Practice,<br><em>Decoded</em></h1>
-    <p>BodyCipher gives practitioners a powerful AI-assisted tool to complement their work — start with 7 days of full access, on us.</p>
-    <a href="mailto:andre@bodycipher.org?subject=Practitioner%207-Day%20Access%20Request&body=Hello%20André%2C%0A%0AI%20would%20like%207-day%20practitioner%20access%20to%20BodyCipher.%0A%0AName%3A%0APractice%20%2F%20Specialty%3A" class="hero-cta">Request Access</a>
+    <p>AI-assisted visual body analysis for holistic practitioners. Apply below for 7-day access — no credit card required.</p>
   </section>
 
-  <section class="features-section">
-    <span class="features-label">What You Get</span>
-    <h2 class="features-title">Everything You Need to<br><em>Read the Body</em></h2>
-
+  <section class="features">
+    <span class="section-label">What You Get</span>
+    <h2 class="section-title">Everything to <em>Read the Body</em></h2>
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon">👁</div>
         <h3>Visual Body Analysis</h3>
-        <p>Upload photos of the tongue, nails, eyes, and skin. BodyCipher maps what it sees to patterns your training already recognizes — in seconds.</p>
+        <p>Upload photos of tongue, nails, eyes, and skin. BodyCipher maps findings to patterns your training already recognizes — in seconds.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🌿</div>
         <h3>Herbal Protocols</h3>
-        <p>Every analysis returns a personalized herbal recommendation with dosage guidance — so you leave each session with a clear, actionable plan.</p>
+        <p>Every analysis returns a personalized herbal recommendation with dosage guidance — a clear, actionable plan for every client.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🔒</div>
         <h3>Your Private Login</h3>
-        <p>A dedicated account tied to your email. No shared codes, no guessing — just sign in and go. Your sessions stay yours.</p>
+        <p>A dedicated account tied to your email. No shared codes — just sign in and go. Your sessions stay yours.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">📋</div>
         <h3>Client-Ready Results</h3>
-        <p>Walk clients through their results on-screen or print a clean summary — making consultations more visual, more thorough, and more memorable.</p>
+        <p>Walk clients through findings on-screen or print a clean summary — making consultations more visual and more thorough.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🤖</div>
         <h3>AI-Powered Insights</h3>
-        <p>Backed by Claude AI vision — the same technology that powers leading wellness and medical apps — trained on holistic health principles.</p>
+        <p>Backed by Claude AI vision, trained on holistic health principles — the same technology powering leading wellness apps.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">⚡</div>
-        <h3>Fast & Mobile-Friendly</h3>
-        <p>Works on any device. Run a full analysis during a consultation — no app download required, no setup, no waiting.</p>
+        <h3>Works Anywhere</h3>
+        <p>No app download. No setup. Run a full analysis on any device during a consultation — fast and mobile-friendly.</p>
       </div>
     </div>
+  </section>
 
-    <div class="access-block">
-      <h2>Get Your <em>7-Day Access</em></h2>
-      <p>Send me your email address and I'll set up your 7-day practitioner account. You'll receive your login credentials within 24 hours — no credit card required.</p>
-      <a href="mailto:andre@bodycipher.org?subject=Practitioner%207-Day%20Access%20Request&body=Hello%20André%2C%0A%0AI%20would%20like%20practitioner%20access%20to%20BodyCipher.%0A%0AName%3A%0APractice%20%2F%20Specialty%3A%0AEmail%3A" class="access-email-link">Email to Request Access</a>
-      <p class="access-note">
-        Already have an account? <a href="login.html">Sign in here →</a>
-      </p>
+  <section class="form-section">
+    <div class="form-card">
+      <h2>Apply for <em>7-Day Access</em></h2>
+      <span class="form-sub">Tell us a bit about your practice</span>
+
+      <form name="practitioner-access" netlify netlify-honeypot="bot-field" id="pracForm">
+        <input type="hidden" name="form-name" value="practitioner-access">
+        <p hidden><input name="bot-field"></p>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label for="fname">First Name *</label>
+            <input type="text" id="fname" name="first_name" placeholder="Jane" required>
+          </div>
+          <div class="field-group">
+            <label for="lname">Last Name *</label>
+            <input type="text" id="lname" name="last_name" placeholder="Doe" required>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+
+        <div class="field-group">
+          <label for="specialty">Specialty / Practice Type *</label>
+          <select id="specialty" name="specialty" required>
+            <option value="" disabled selected>Select your specialty…</option>
+            <option>Herbalist</option>
+            <option>Naturopathic Doctor (ND)</option>
+            <option>Traditional Chinese Medicine (TCM)</option>
+            <option>Ayurvedic Practitioner</option>
+            <option>Functional Medicine</option>
+            <option>Holistic Health Coach</option>
+            <option>Nutritionist / Dietitian</option>
+            <option>Chiropractor</option>
+            <option>Acupuncturist</option>
+            <option>Massage Therapist</option>
+            <option>Yoga / Wellness Instructor</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="location">City &amp; State / Country *</label>
+          <input type="text" id="location" name="location" placeholder="Atlanta, GA" required>
+        </div>
+
+        <div class="field-group">
+          <label for="website">Practice Website or Social Media</label>
+          <input type="text" id="website" name="website" placeholder="https://yourpractice.com or @yourhandle">
+        </div>
+
+        <div class="field-group">
+          <label for="use_case">How do you plan to use BodyCipher with clients?</label>
+          <textarea id="use_case" name="use_case" rows="3" placeholder="Briefly describe how this fits into your practice…"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Request 7-Day Access</button>
+
+        <p class="form-note">
+          You'll hear back within 24 hours with your login credentials.
+          &nbsp;Already have an account? <a href="login.html">Sign in →</a>
+        </p>
+      </form>
+
+      <div class="success-msg" id="successMsg">
+        <div class="check">✅</div>
+        <h3>Application Received</h3>
+        <p>Thank you — André will review your application and send your login credentials within 24 hours.</p>
+      </div>
     </div>
   </section>
+
+  <section class="review-section">
+    <div class="review-inner">
+      <span class="section-label">Your Feedback</span>
+      <h2 class="section-title">Share Your <em>Experience</em></h2>
+      <p class="review-sub">Tried BodyCipher? We'd love to hear what you think.</p>
+
+      <div class="review-card">
+        <form name="bodycipher-reviews" method="POST" data-netlify="true"
+              netlify-honeypot="bot-field" id="reviewForm">
+          <input type="hidden" name="form-name" value="bodycipher-reviews">
+          <p hidden><input name="bot-field"></p>
+
+          <div class="field-group">
+            <label>Your Rating</label>
+            <div class="star-rating" role="radiogroup" aria-label="Star rating">
+              <input type="radio" name="rating" id="ps5" value="5"><label for="ps5" title="5 stars">★</label>
+              <input type="radio" name="rating" id="ps4" value="4"><label for="ps4" title="4 stars">★</label>
+              <input type="radio" name="rating" id="ps3" value="3"><label for="ps3" title="3 stars">★</label>
+              <input type="radio" name="rating" id="ps2" value="2"><label for="ps2" title="2 stars">★</label>
+              <input type="radio" name="rating" id="ps1" value="1"><label for="ps1" title="1 star">★</label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="rev-name">Name or Initials</label>
+            <input type="text" id="rev-name" name="name" placeholder="e.g. J.D." required>
+          </div>
+
+          <div class="field-group">
+            <label for="rev-comment">Your Experience</label>
+            <textarea id="rev-comment" name="comment" rows="4"
+              placeholder="What did you find most useful? How did it fit your practice?" required></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn" id="reviewBtn">Submit Review</button>
+        </form>
+        <div id="reviewThanks" style="display:none;text-align:center;padding:32px 0;">
+          <div style="font-size:2rem;margin-bottom:12px;">🙏</div>
+          <p style="font-family:var(--font-display);font-size:1.4rem;color:var(--gold);">Thank you!</p>
+          <p style="font-size:0.9rem;color:var(--ash);margin-top:8px;">Your review has been submitted and will appear on the site once approved.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
 
   <footer>
     © 2026 BodyCipher &nbsp;·&nbsp; <a href="index.html">Back to Home</a> &nbsp;·&nbsp; <a href="mailto:andre@bodycipher.org">Contact</a>
   </footer>
+
+  <script>
+    document.getElementById('pracForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Submitting…';
+
+      const formData = new FormData(this);
+
+      try {
+        const res = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(formData).toString()
+        });
+
+        if (res.ok) {
+          document.getElementById('pracForm').style.display = 'none';
+          document.getElementById('successMsg').style.display = 'block';
+        } else {
+          throw new Error('Submit failed');
+        }
+      } catch(err) {
+        btn.disabled = false;
+        btn.textContent = 'Request 7-Day Access';
+        alert('Something went wrong — please try again or email andre@bodycipher.org directly.');
+      }
+    });
+  </script>
+
+
+  <script>
+    document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('reviewBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Submitting…';
+      const formData = new FormData(this);
+      try {
+        const res = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(formData).toString()
+        });
+        if (res.ok) {
+          document.getElementById('reviewForm').style.display = 'none';
+          document.getElementById('reviewThanks').style.display = 'block';
+        } else { throw new Error(); }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Submit Review';
+        alert('Submission failed — please try again.');
+      }
+    });
+  </script>
 
 </body>
 </html>
