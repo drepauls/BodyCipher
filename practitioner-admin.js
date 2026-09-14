@@ -29,7 +29,6 @@ exports.handler = async (event) => {
   const { action, userId, email, expiryDate } = JSON.parse(event.body || '{}');
 
   try {
-    // LIST all users
     if (action === 'list') {
       const res = await fetch(`${SUPA_URL}/auth/v1/admin/users?per_page=100`, {
         headers: supaHeaders
@@ -38,7 +37,6 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify(data) };
     }
 
-    // SET expiry date for a user
     if (action === 'set_expiry') {
       const res = await fetch(`${SUPA_URL}/auth/v1/admin/users/${userId}`, {
         method: 'PUT',
@@ -49,7 +47,6 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify(data) };
     }
 
-    // CREATE a new practitioner
     if (action === 'create') {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
@@ -68,12 +65,11 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ ...data, expires_at: expires }) };
     }
 
-    // DISABLE a user (ban them)
     if (action === 'disable') {
       const res = await fetch(`${SUPA_URL}/auth/v1/admin/users/${userId}`, {
         method: 'PUT',
         headers: supaHeaders,
-        body: JSON.stringify({ ban_duration: '876600h' }) // 100 years
+        body: JSON.stringify({ ban_duration: '876600h' })
       });
       const data = await res.json();
       return { statusCode: 200, headers, body: JSON.stringify(data) };
