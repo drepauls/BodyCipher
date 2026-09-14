@@ -211,7 +211,12 @@
     const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iZHJ4bWhxbW16cm9tZ2hhbmhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjAzODUsImV4cCI6MjA5MTgzNjM4NX0.IKcz68pf73Sdw8YB52Kbvm3HqR6HgwCCHh-q93Rxvgc';
     const _supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
-    // If already logged in, go straight to app
+    // Show expired message if redirected from app
+    if (new URLSearchParams(window.location.search).get('expired') === '1') {
+      showError('Your 7-day practitioner access has expired. Contact andre@bodycipher.org to renew.');
+    }
+
+    // If already logged in, go straight to app (expiry is checked in app.html)
     _supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) window.location.href = 'app.html';
     });
@@ -248,6 +253,16 @@
           ? 'Incorrect email or password. Please try again.'
           : error.message);
       } else {
+        // Check 7-day expiry before entering app
+        const { data: { session } } = await _supabase.auth.getSession();
+        const expiresAt = session?.user?.user_metadata?.expires_at;
+        if (expiresAt && new Date(expiresAt) < new Date()) {
+          await _supabase.auth.signOut();
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+          showError('Your 7-day access has expired. Please contact andre@bodycipher.org to renew.');
+          return;
+        }
         window.location.href = 'app.html';
       }
     }

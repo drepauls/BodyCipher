@@ -738,6 +738,13 @@ window.addEventListener('load', async () => {
   const sessionResult = _supabase ? await _supabase.auth.getSession() : { data: { session: null } };
   const session = sessionResult.data.session;
   if (session) {
+    // ── 7-DAY EXPIRY CHECK ──────────────────────────────
+    const expiresAt = session.user.user_metadata?.expires_at;
+    if (expiresAt && new Date(expiresAt) < new Date()) {
+      await _supabase.auth.signOut();
+      window.location.href = 'login.html?expired=1';
+      return;
+    }
     supaSession = session;
     userCode = 'PRACTITIONER';
     document.getElementById('gate').style.display = 'none';

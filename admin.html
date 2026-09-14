@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodyCipher — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b140d; --surface: #111a13; --border: #1e4a2e;
+      --gold: #f5e642; --gold-dim: #c9b800; --ash: #b8b4ac;
+      --smoke: #6a6460; --txt: #e8e4dc; --red: #e85d26; --green: #4caf50;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-mono: 'DM Mono', monospace;
+      --font-body: 'Outfit', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--txt); font-family: var(--font-body); min-height: 100vh; padding: 24px; }
+
+    /* LOGIN GATE */
+    #gate {
+      max-width: 400px; margin: 80px auto; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px; padding: 40px 36px;
+    }
+    #gate h1 { font-family: var(--font-display); font-size: 1.8rem; color: var(--gold); margin-bottom: 6px; }
+    #gate p { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--smoke); margin-bottom: 28px; }
+
+    /* MAIN ADMIN */
+    #app { display: none; max-width: 960px; margin: 0 auto; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .admin-header h1 { font-family: var(--font-display); font-size: 2rem; color: var(--gold); }
+    .admin-header p { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--smoke); margin-top: 4px; }
+
+    /* ADD FORM */
+    .add-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; margin-bottom: 32px; }
+    .add-card h2 { font-family: var(--font-display); font-size: 1.4rem; color: var(--txt); margin-bottom: 18px; }
+    .add-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .add-row .fg { flex: 1; min-width: 200px; }
+
+    /* INPUTS */
+    label { display: block; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--smoke); margin-bottom: 7px; }
+    input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 10px 13px; font-family: var(--font-body); font-size: 0.9rem; color: var(--txt); outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: var(--gold-dim); }
+    input::placeholder { color: #3a3a38; }
+
+    /* BUTTONS */
+    .btn { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; padding: 10px 20px; }
+    .btn-gold { background: var(--gold); color: #111; }
+    .btn-gold:hover { background: #fff176; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--ash); }
+    .btn-outline:hover { border-color: var(--gold-dim); color: var(--gold); }
+    .btn-red { background: rgba(232,93,38,0.15); border: 1px solid rgba(232,93,38,0.3); color: var(--red); }
+    .btn-red:hover { background: rgba(232,93,38,0.25); }
+    .btn-green { background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); color: var(--green); }
+    .btn-green:hover { background: rgba(76,175,80,0.25); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* TABLE */
+    .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .table-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .table-header h2 { font-family: var(--font-display); font-size: 1.4rem; color: var(--txt); }
+    .table-header .refresh-btn { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; background: transparent; border: 1px solid var(--border); color: var(--smoke); border-radius: 4px; padding: 6px 14px; cursor: pointer; }
+    .table-header .refresh-btn:hover { color: var(--gold); border-color: var(--gold-dim); }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--smoke); padding: 12px 24px; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 24px; border-bottom: 1px solid rgba(30,74,46,0.4); font-size: 0.88rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge { display: inline-block; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 20px; }
+    .badge-active { background: rgba(76,175,80,0.15); color: var(--green); border: 1px solid rgba(76,175,80,0.3); }
+    .badge-expiring { background: rgba(245,230,66,0.15); color: var(--gold); border: 1px solid rgba(245,230,66,0.3); }
+    .badge-expired { background: rgba(232,93,38,0.12); color: var(--red); border: 1px solid rgba(232,93,38,0.25); }
+    .badge-noexpiry { background: rgba(106,100,96,0.2); color: var(--smoke); border: 1px solid var(--border); }
+    .days-left { font-family: var(--font-mono); font-size: 0.7rem; }
+    .extend-row { display: flex; gap: 8px; align-items: center; }
+    .extend-row input { width: 130px; padding: 7px 10px; font-size: 0.82rem; }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; color: var(--txt); opacity: 0; transform: translateY(8px); transition: all 0.3s; pointer-events: none; z-index: 999; }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.ok { border-color: var(--green); color: var(--green); }
+    #toast.err { border-color: var(--red); color: var(--red); }
+
+    .loading { font-family: var(--font-mono); font-size: 0.72rem; color: var(--smoke); text-align: center; padding: 40px; }
+    .empty { font-family: var(--font-mono); font-size: 0.7rem; color: var(--smoke); text-align: center; padding: 40px; }
+
+    @media (max-width: 640px) { th, td { padding: 10px 14px; } .extend-row { flex-direction: column; } }
+  </style>
+</head>
+<body>
+
+  <!-- GATE -->
+  <div id="gate">
+    <h1>BodyCipher</h1>
+    <p>Practitioner Admin</p>
+    <div style="margin-bottom:18px;">
+      <label for="secretInput">Admin Secret</label>
+      <input type="password" id="secretInput" placeholder="Enter admin secret" autocomplete="off">
+    </div>
+    <button class="btn btn-gold" onclick="unlock()" style="width:100%;">Enter</button>
+    <div id="gateErr" style="display:none;margin-top:14px;font-family:var(--font-mono);font-size:0.65rem;color:var(--red);"></div>
+  </div>
+
+  <!-- ADMIN APP -->
+  <div id="app">
+    <div class="admin-header">
+      <div>
+        <h1>Practitioner Admin</h1>
+        <p>BodyCipher · 7-day access management</p>
+      </div>
+      <button class="btn btn-outline" onclick="logout()">Sign Out</button>
+    </div>
+
+    <!-- ADD NEW -->
+    <div class="add-card">
+      <h2>Add New Practitioner</h2>
+      <div class="add-row">
+        <div class="fg">
+          <label for="newEmail">Email Address</label>
+          <input type="email" id="newEmail" placeholder="practitioner@example.com">
+        </div>
+        <div class="fg">
+          <label for="newPass">Temporary Password</label>
+          <input type="text" id="newPass" placeholder="They can change this later">
+        </div>
+        <button class="btn btn-gold" id="addBtn" onclick="addPractitioner()" style="white-space:nowrap;">
+          Create + 7 Days
+        </button>
+      </div>
+      <p style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.1em;color:var(--smoke);margin-top:12px;">
+        Account is created immediately with 7-day access. Share the email + password with the practitioner.
+      </p>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div class="table-header">
+        <h2>Active Practitioners</h2>
+        <button class="refresh-btn" onclick="loadUsers()">↻ Refresh</button>
+      </div>
+      <div id="tableWrap"><div class="loading">Loading…</div></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let SECRET = '';
+
+    function unlock() {
+      const val = document.getElementById('secretInput').value.trim();
+      if (!val) return;
+      SECRET = val;
+      // Test it by making an API call
+      document.getElementById('gateErr').style.display = 'none';
+      callAdmin({ action: 'list' }).then(data => {
+        if (data.error === 'Unauthorized') {
+          SECRET = '';
+          document.getElementById('gateErr').textContent = 'Incorrect secret.';
+          document.getElementById('gateErr').style.display = 'block';
+        } else {
+          document.getElementById('gate').style.display = 'none';
+          document.getElementById('app').style.display = 'block';
+          renderTable(data.users || []);
+        }
+      });
+    }
+
+    document.getElementById('secretInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') unlock();
+    });
+
+    function logout() {
+      SECRET = '';
+      document.getElementById('gate').style.display = 'block';
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('secretInput').value = '';
+    }
+
+    async function callAdmin(body) {
+      const res = await fetch('/.netlify/functions/practitioner-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': SECRET },
+        body: JSON.stringify(body)
+      });
+      return res.json();
+    }
+
+    async function loadUsers() {
+      document.getElementById('tableWrap').innerHTML = '<div class="loading">Loading…</div>';
+      const data = await callAdmin({ action: 'list' });
+      renderTable(data.users || []);
+    }
+
+    function daysLeft(expiresAt) {
+      if (!expiresAt) return null;
+      const diff = new Date(expiresAt) - new Date();
+      return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+
+    function statusBadge(expiresAt, banned) {
+      if (banned) return '<span class="badge badge-expired">Disabled</span>';
+      if (!expiresAt) return '<span class="badge badge-noexpiry">No Expiry</span>';
+      const d = daysLeft(expiresAt);
+      if (d < 0) return '<span class="badge badge-expired">Expired</span>';
+      if (d <= 2) return `<span class="badge badge-expiring">Expires in ${d}d</span>`;
+      return `<span class="badge badge-active">Active · ${d}d left</span>`;
+    }
+
+    function renderTable(users) {
+      // Filter to show only practitioners (has expires_at metadata) or all non-anon users
+      // Sort: expiring soonest first, then by email
+      const sorted = [...users].sort((a, b) => {
+        const ea = a.user_metadata?.expires_at;
+        const eb = b.user_metadata?.expires_at;
+        if (!ea && !eb) return a.email.localeCompare(b.email);
+        if (!ea) return 1;
+        if (!eb) return -1;
+        return new Date(ea) - new Date(eb);
+      });
+
+      if (sorted.length === 0) {
+        document.getElementById('tableWrap').innerHTML = '<div class="empty">No practitioners yet.</div>';
+        return;
+      }
+
+      const rows = sorted.map(u => {
+        const exp = u.user_metadata?.expires_at || '';
+        const banned = u.banned_until && new Date(u.banned_until) > new Date();
+        const sevenDaysOut = new Date();
+        sevenDaysOut.setDate(sevenDaysOut.getDate() + 7);
+        const sevenStr = sevenDaysOut.toISOString().split('T')[0];
+
+        return `<tr>
+          <td>${u.email}</td>
+          <td>${exp ? new Date(exp).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
+          <td>${statusBadge(exp, banned)}</td>
+          <td>
+            <div class="extend-row">
+              <input type="date" id="date-${u.id}" value="${exp || sevenStr}" min="${new Date().toISOString().split('T')[0]}">
+              <button class="btn btn-green" onclick="setExpiry('${u.id}', '${u.email}')">Save</button>
+              ${!banned ? `<button class="btn btn-red" onclick="disableUser('${u.id}', '${u.email}')">Disable</button>` : ''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      document.getElementById('tableWrap').innerHTML = `
+        <table>
+          <thead><tr><th>Email</th><th>Expires</th><th>Status</th><th>Manage</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    async function setExpiry(userId, email) {
+      const dateVal = document.getElementById(`date-${userId}`).value;
+      if (!dateVal) return;
+      const data = await callAdmin({ action: 'set_expiry', userId, expiryDate: dateVal });
+      if (data.id) {
+        toast(`✓ Updated ${email}`, 'ok');
+        loadUsers();
+      } else {
+        toast('Error: ' + (data.message || 'Unknown error'), 'err');
+      }
+    }
+
+    async function disableUser(userId, email) {
+      if (!confirm(`Disable access for ${email}?`)) return;
+      const data = await callAdmin({ action: 'disable', userId });
+      if (data.id) {
+        toast(`✗ ${email} disabled`, 'ok');
+        loadUsers();
+      } else {
+        toast('Error: ' + (data.message || 'Unknown error'), 'err');
+      }
+    }
+
+    async function addPractitioner() {
+      const email = document.getElementById('newEmail').value.trim();
+      const pass = document.getElementById('newPass').value.trim();
+      if (!email || !pass) { toast('Email and password required', 'err'); return; }
+      const btn = document.getElementById('addBtn');
+      btn.disabled = true; btn.textContent = 'Creating…';
+      const data = await callAdmin({ action: 'create', email, password: pass });
+      btn.disabled = false; btn.textContent = 'Create + 7 Days';
+      if (data.id) {
+        toast(`✓ Created ${email} · expires ${data.expires_at}`, 'ok');
+        document.getElementById('newEmail').value = '';
+        document.getElementById('newPass').value = '';
+        loadUsers();
+      } else {
+        toast('Error: ' + (data.message || JSON.stringify(data)), 'err');
+      }
+    }
+
+    let toastTimer;
+    function toast(msg, type = '') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'show ' + type;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+    }
+  </script>
+</body>
+</html>
