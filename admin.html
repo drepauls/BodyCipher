@@ -72,7 +72,7 @@
     .badge-expired { background: rgba(232,93,38,0.12); color: var(--red); border: 1px solid rgba(232,93,38,0.25); }
     .badge-noexpiry { background: rgba(106,100,96,0.2); color: var(--smoke); border: 1px solid var(--border); }
     .days-left { font-family: var(--font-mono); font-size: 0.7rem; }
-    .extend-row { display: flex; gap: 8px; align-items: center; }
+    .extend-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .extend-row input { width: 130px; padding: 7px 10px; font-size: 0.82rem; }
 
     /* TOAST */
@@ -151,7 +151,6 @@
       const val = document.getElementById('secretInput').value.trim();
       if (!val) return;
       SECRET = val;
-      // Test it by making an API call
       document.getElementById('gateErr').style.display = 'none';
       callAdmin({ action: 'list' }).then(data => {
         if (data.error === 'Unauthorized') {
@@ -208,8 +207,6 @@
     }
 
     function renderTable(users) {
-      // Filter to show only practitioners (has expires_at metadata) or all non-anon users
-      // Sort: expiring soonest first, then by email
       const sorted = [...users].sort((a, b) => {
         const ea = a.user_metadata?.expires_at;
         const eb = b.user_metadata?.expires_at;
@@ -239,7 +236,10 @@
             <div class="extend-row">
               <input type="date" id="date-${u.id}" value="${exp || sevenStr}" min="${new Date().toISOString().split('T')[0]}">
               <button class="btn btn-green" onclick="setExpiry('${u.id}', '${u.email}')">Save</button>
-              ${!banned ? `<button class="btn btn-red" onclick="disableUser('${u.id}', '${u.email}')">Disable</button>` : ''}
+              ${banned
+                ? `<button class="btn btn-green" onclick="reactivateUser('${u.id}', '${u.email}')">Reactivate</button>`
+                : `<button class="btn btn-red" onclick="disableUser('${u.id}', '${u.email}')">Disable</button>`
+              }
             </div>
           </td>
         </tr>`;
@@ -269,6 +269,17 @@
       const data = await callAdmin({ action: 'disable', userId });
       if (data.id) {
         toast(`✗ ${email} disabled`, 'ok');
+        loadUsers();
+      } else {
+        toast('Error: ' + (data.message || 'Unknown error'), 'err');
+      }
+    }
+
+    async function reactivateUser(userId, email) {
+      if (!confirm(`Reactivate access for ${email}?`)) return;
+      const data = await callAdmin({ action: 'reactivate', userId });
+      if (data.id) {
+        toast(`✓ ${email} reactivated`, 'ok');
         loadUsers();
       } else {
         toast('Error: ' + (data.message || 'Unknown error'), 'err');
