@@ -75,6 +75,17 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify(data) };
     }
 
+    // REACTIVATE a user (unban)
+    if (action === 'reactivate') {
+      const res = await fetch(`${SUPA_URL}/auth/v1/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: supaHeaders,
+        body: JSON.stringify({ ban_duration: 'none' })
+      });
+      const data = await res.json();
+      return { statusCode: 200, headers, body: JSON.stringify(data) };
+    }
+
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown action' }) };
 
   } catch (err) {
