@@ -17,7 +17,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--txt); font-family: var(--font-body); min-height: 100vh; padding: 24px; }
 
-    /* LOGIN GATE */
     #gate {
       max-width: 400px; margin: 80px auto; background: var(--surface);
       border: 1px solid var(--border); border-radius: 12px; padding: 40px 36px;
@@ -25,25 +24,21 @@
     #gate h1 { font-family: var(--font-display); font-size: 1.8rem; color: var(--gold); margin-bottom: 6px; }
     #gate p { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--smoke); margin-bottom: 28px; }
 
-    /* MAIN ADMIN */
     #app { display: none; max-width: 960px; margin: 0 auto; }
     .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
     .admin-header h1 { font-family: var(--font-display); font-size: 2rem; color: var(--gold); }
     .admin-header p { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--smoke); margin-top: 4px; }
 
-    /* ADD FORM */
     .add-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; margin-bottom: 32px; }
     .add-card h2 { font-family: var(--font-display); font-size: 1.4rem; color: var(--txt); margin-bottom: 18px; }
     .add-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
     .add-row .fg { flex: 1; min-width: 200px; }
 
-    /* INPUTS */
     label { display: block; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--smoke); margin-bottom: 7px; }
     input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 10px 13px; font-family: var(--font-body); font-size: 0.9rem; color: var(--txt); outline: none; transition: border-color 0.2s; }
     input:focus { border-color: var(--gold-dim); }
     input::placeholder { color: #3a3a38; }
 
-    /* BUTTONS */
     .btn { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; padding: 10px 20px; }
     .btn-gold { background: var(--gold); color: #111; }
     .btn-gold:hover { background: #fff176; }
@@ -53,9 +48,10 @@
     .btn-red:hover { background: rgba(232,93,38,0.25); }
     .btn-green { background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); color: var(--green); }
     .btn-green:hover { background: rgba(76,175,80,0.25); }
+    .btn-blue { background: rgba(66,165,245,0.15); border: 1px solid rgba(66,165,245,0.3); color: #42a5f5; }
+    .btn-blue:hover { background: rgba(66,165,245,0.25); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* TABLE */
     .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
     .table-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .table-header h2 { font-family: var(--font-display); font-size: 1.4rem; color: var(--txt); }
@@ -71,11 +67,17 @@
     .badge-expiring { background: rgba(245,230,66,0.15); color: var(--gold); border: 1px solid rgba(245,230,66,0.3); }
     .badge-expired { background: rgba(232,93,38,0.12); color: var(--red); border: 1px solid rgba(232,93,38,0.25); }
     .badge-noexpiry { background: rgba(106,100,96,0.2); color: var(--smoke); border: 1px solid var(--border); }
-    .days-left { font-family: var(--font-mono); font-size: 0.7rem; }
     .extend-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .extend-row input { width: 130px; padding: 7px 10px; font-size: 0.82rem; }
 
-    /* TOAST */
+    /* RESET PASSWORD MODAL */
+    #resetModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+    #resetModal.show { display: flex; }
+    .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; width: 100%; max-width: 400px; }
+    .modal-box h3 { font-family: var(--font-display); font-size: 1.4rem; color: var(--txt); margin-bottom: 6px; }
+    .modal-box p { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.12em; color: var(--smoke); margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
     #toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; color: var(--txt); opacity: 0; transform: translateY(8px); transition: all 0.3s; pointer-events: none; z-index: 999; }
     #toast.show { opacity: 1; transform: translateY(0); }
     #toast.ok { border-color: var(--green); color: var(--green); }
@@ -142,10 +144,28 @@
     </div>
   </div>
 
+  <!-- RESET PASSWORD MODAL -->
+  <div id="resetModal">
+    <div class="modal-box">
+      <h3>Reset Password</h3>
+      <p id="resetModalEmail">—</p>
+      <div>
+        <label for="newPasswordInput">New Password</label>
+        <input type="text" id="newPasswordInput" placeholder="Min 6 characters">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-gold" onclick="confirmReset()">Set Password</button>
+        <button class="btn btn-outline" onclick="closeResetModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast"></div>
 
   <script>
     let SECRET = '';
+    let resetTargetId = '';
+    let resetTargetEmail = '';
 
     function unlock() {
       const val = document.getElementById('secretInput').value.trim();
@@ -227,6 +247,7 @@
         const sevenDaysOut = new Date();
         sevenDaysOut.setDate(sevenDaysOut.getDate() + 7);
         const sevenStr = sevenDaysOut.toISOString().split('T')[0];
+        const emailSafe = u.email.replace(/'/g, "\\'");
 
         return `<tr>
           <td>${u.email}</td>
@@ -235,10 +256,11 @@
           <td>
             <div class="extend-row">
               <input type="date" id="date-${u.id}" value="${exp || sevenStr}" min="${new Date().toISOString().split('T')[0]}">
-              <button class="btn btn-green" onclick="setExpiry('${u.id}', '${u.email}')">Save</button>
+              <button class="btn btn-green" onclick="setExpiry('${u.id}', '${emailSafe}')">Save</button>
+              <button class="btn btn-blue" onclick="openResetModal('${u.id}', '${emailSafe}')">Reset PW</button>
               ${banned
-                ? `<button class="btn btn-green" onclick="reactivateUser('${u.id}', '${u.email}')">Reactivate</button>`
-                : `<button class="btn btn-red" onclick="disableUser('${u.id}', '${u.email}')">Disable</button>`
+                ? `<button class="btn btn-green" onclick="reactivateUser('${u.id}', '${emailSafe}')">Reactivate</button>`
+                : `<button class="btn btn-red" onclick="disableUser('${u.id}', '${emailSafe}')">Disable</button>`
               }
             </div>
           </td>
@@ -286,13 +308,42 @@
       }
     }
 
+    function openResetModal(userId, email) {
+      resetTargetId = userId;
+      resetTargetEmail = email;
+      document.getElementById('resetModalEmail').textContent = email;
+      document.getElementById('newPasswordInput').value = '';
+      document.getElementById('resetModal').classList.add('show');
+    }
+
+    function closeResetModal() {
+      document.getElementById('resetModal').classList.remove('show');
+      resetTargetId = '';
+      resetTargetEmail = '';
+    }
+
+    async function confirmReset() {
+      const newPassword = document.getElementById('newPasswordInput').value.trim();
+      if (!newPassword || newPassword.length < 6) {
+        toast('Password must be at least 6 characters', 'err');
+        return;
+      }
+      const data = await callAdmin({ action: 'reset_password', userId: resetTargetId, newPassword });
+      if (data.id) {
+        toast(`✓ Password reset for ${resetTargetEmail}`, 'ok');
+        closeResetModal();
+      } else {
+        toast('Error: ' + (data.message || 'Unknown error'), 'err');
+      }
+    }
+
     async function addPractitioner() {
       const email = document.getElementById('newEmail').value.trim();
       const pass = document.getElementById('newPass').value.trim();
       if (!email || !pass) { toast('Email and password required', 'err'); return; }
       const btn = document.getElementById('addBtn');
       btn.disabled = true; btn.textContent = 'Creating…';
-      const data = await callAdmin({ action: 'create', email, password: pass });
+      const data = await callAdmin({ action: 'create', email, newPassword: pass });
       btn.disabled = false; btn.textContent = 'Create + 7 Days';
       if (data.id) {
         toast(`✓ Created ${email} · expires ${data.expires_at}`, 'ok');
