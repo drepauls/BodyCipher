@@ -26,9 +26,10 @@ exports.handler = async (event) => {
     'Content-Type': 'application/json'
   };
 
-  const { action, userId, email, expiryDate } = JSON.parse(event.body || '{}');
+  const { action, userId, email, expiryDate, newPassword } = JSON.parse(event.body || '{}');
 
   try {
+    // LIST all users
     if (action === 'list') {
       const res = await fetch(`${SUPA_URL}/auth/v1/admin/users?per_page=100`, {
         headers: supaHeaders
@@ -37,6 +38,7 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify(data) };
     }
 
+    // SET expiry date for a user
     if (action === 'set_expiry') {
       const res = await fetch(`${SUPA_URL}/auth/v1/admin/users/${userId}`, {
         method: 'PUT',
@@ -47,6 +49,7 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify(data) };
     }
 
+    // CREATE a new practitioner
     if (action === 'create') {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
@@ -57,6 +60,7 @@ exports.handler = async (event) => {
         headers: supaHeaders,
         body: JSON.stringify({
           email,
+          password: newPassword,
           email_confirm: true,
           user_metadata: { expires_at: expires }
         })
@@ -65,6 +69,7 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ ...data, expires_at: expires }) };
     }
 
+    // DISABLE a user (ban them)
     if (action === 'disable') {
       const res = await fetch(`${SUPA_URL}/auth/v1/admin/users/${userId}`, {
         method: 'PUT',
@@ -81,6 +86,20 @@ exports.handler = async (event) => {
         method: 'PUT',
         headers: supaHeaders,
         body: JSON.stringify({ ban_duration: 'none' })
+      });
+      const data = await res.json();
+      return { statusCode: 200, headers, body: JSON.stringify(data) };
+    }
+
+    // RESET PASSWORD
+    if (action === 'reset_password') {
+      if (!newPassword || newPassword.length < 6) {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Password must be at least 6 characters' }) };
+      }
+      const res = await fetch(`${SUPA_URL}/auth/v1/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: supaHeaders,
+        body: JSON.stringify({ password: newPassword })
       });
       const data = await res.json();
       return { statusCode: 200, headers, body: JSON.stringify(data) };
