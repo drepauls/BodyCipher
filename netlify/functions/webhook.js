@@ -1,105 +1,160 @@
-const https = require('https');
+// BodyCipher — Stripe Webhook
+// Triggers on: checkout.session.completed
+// Creates Supabase account + sends invite email to the customer
+// Env vars needed: STRIPE_WEBHOOK_SECRET, SUPABASE_URL, SUPABASE_SERVICE_KEY
+
 const crypto = require('crypto');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
-const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+exports.handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' };
+  }
 
-const headers = {
-  'Content-Type': 'application/json'
+  // ── Verify Stripe signature ──────────────────────────────────────────────
+  const sig = event.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!verifyStripeSignature(event.body, sig, webhookSecret)) {
+    console.error('Stripe signature verification failed');
+    return { statusCode: 400, body: 'Invalid signature' };
+  }
+
+  let stripeEvent;
+  try {
+    stripeEvent = JSON.parse(event.body);
+  } catch (e) {
+    return { statusCode: 400, body: 'Invalid JSON' };
+  }
+
+  // ── Handle checkout completed ────────────────────────────────────────────
+  if (stripeEvent.type === 'checkout.session.completed') {
+    const session = stripeEvent.data.object;
+
+    // Get customer email
+    const email = session.customer_email || session.customer_details?.email;
+    if (!email) {
+      console.error('No email found in Stripe session');
+      return { statusCode: 200, body: JSON.stringify({ received: true, warning: 'no email' }) };
+    }
+
+    // Determine access duration from amount paid (in cents)
+    // Basic $7.99 = 799  |  Pro $14.99 = 1499  |  Pro Annual $124.99 = 12499
+    const amount = session.amount_total || 0;
+    const daysToAdd = amount >= 10000 ? 365 : 31; // annual = 365 days, monthly = 31 days
+    const plan = amount >= 10000 ? 'pro_annual' : amount >= 1200 ? 'pro' : 'basic';
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + daysToAdd);
+    const expires = expiresAt.toISOString().split('T')[0];
+
+    console.log(`New subscriber: ${email} | plan: ${plan} | expires: ${expires}`);
+
+    // ── Create Supabase account via invite ───────────────────────────────
+    // Supabase invite sends an email with a magic link to set their password
+    const SUPA_URL = process.env.SUPABASE_URL;
+    const SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+    const res = await fetch(`${SUPA_URL}/auth/v1/invite`, {
+      method: 'POST',
+      headers: {
+        'apikey': SERVICE_KEY,
+        'Authorization': `Bearer ${SERVICE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        data: {
+          expires_at: expires,
+          plan,
+          stripe_session_id: session.id
+        }
+      })
+    });
+
+    const result = await res.json();
+
+    if (result.error) {
+      // User may already exist — update their expiry instead
+      if (result.error.message?.includes('already been registered') || res.status === 422) {
+        console.log(`User ${email} already exists — updating expiry`);
+        await updateExistingUser(SUPA_URL, SERVICE_KEY, email, expires, plan);
+      } else {
+        console.error('Supabase invite error:', JSON.stringify(result));
+      }
+    } else {
+      console.log(`Invited ${email} successfully, expires ${expires}`);
+    }
+  }
+
+  return { statusCode: 200, body: JSON.stringify({ received: true }) };
 };
 
-function httpsRequest(options, body) {
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, body: data }));
-    });
-    req.on('error', reject);
-    if (body) req.write(body);
-    req.end();
+// ── Update expiry for an existing user ──────────────────────────────────────
+async function updateExistingUser(SUPA_URL, SERVICE_KEY, email, expires, plan) {
+  const supaHeaders = {
+    'apikey': SERVICE_KEY,
+    'Authorization': `Bearer ${SERVICE_KEY}`,
+    'Content-Type': 'application/json'
+  };
+
+  // Find user by email
+  const listRes = await fetch(`${SUPA_URL}/auth/v1/admin/users?per_page=1000`, {
+    headers: supaHeaders
   });
-}
+  const { users } = await listRes.json();
+  const user = users?.find(u => u.email === email);
 
-async function supabase(method, path, body) {
-  const payload = body ? JSON.stringify(body) : null;
-  const url = new URL(SUPABASE_URL);
-  const res = await httpsRequest({
-    hostname: url.hostname,
-    path: `/rest/v1/${path}`,
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': 'return=representation',
-      ...(payload ? { 'Content-Length': Buffer.byteLength(payload) } : {})
-    }
-  }, payload);
-  return { status: res.status, data: JSON.parse(res.body) };
-}
-
-// Verify Stripe webhook signature
-function verifyStripeSignature(payload, sig, secret) {
-  const parts = sig.split(',');
-  const timestamp = parts.find(p => p.startsWith('t=')).split('=')[1];
-  const signature = parts.find(p => p.startsWith('v1=')).split('=')[1];
-  const signedPayload = `${timestamp}.${payload}`;
-  const expected = crypto.createHmac('sha256', secret).update(signedPayload).digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-}
-
-exports.handler = async function(event) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+  if (!user) {
+    console.error(`Could not find user ${email} to update`);
+    return;
   }
+
+  // Unban + update expiry
+  await fetch(`${SUPA_URL}/auth/v1/admin/users/${user.id}`, {
+    method: 'PUT',
+    headers: supaHeaders,
+    body: JSON.stringify({
+      ban_duration: 'none',
+      user_metadata: { expires_at: expires, plan }
+    })
+  });
+
+  console.log(`Updated existing user ${email} — new expiry: ${expires}`);
+}
+
+// ── Stripe HMAC-SHA256 signature verification (no Stripe library needed) ────
+function verifyStripeSignature(payload, sigHeader, secret) {
+  if (!sigHeader || !secret) return false;
+
+  const parts = sigHeader.split(',').reduce((acc, part) => {
+    const [key, val] = part.split('=');
+    if (key && val) acc[key.trim()] = val.trim();
+    return acc;
+  }, {});
+
+  const timestamp = parts.t;
+  const signature = parts.v1;
+
+  if (!timestamp || !signature) return false;
+
+  // Reject requests older than 5 minutes
+  if (Math.abs(Date.now() / 1000 - parseInt(timestamp)) > 300) {
+    console.error('Stripe webhook timestamp too old');
+    return false;
+  }
+
+  const signedPayload = `${timestamp}.${payload}`;
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(signedPayload, 'utf8')
+    .digest('hex');
 
   try {
-    const sig = event.headers['stripe-signature'];
-    const payload = event.body;
-
-    // Verify webhook signature
-    if (!verifyStripeSignature(payload, sig, WEBHOOK_SECRET)) {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid signature' }) };
-    }
-
-    const stripeEvent = JSON.parse(payload);
-    const data = stripeEvent.data.object;
-
-    switch (stripeEvent.type) {
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated': {
-        const customerId = data.customer;
-        const status = data.status === 'active' ? 'active' : 'inactive';
-        await supabase('PATCH', `users?stripe_customer_id=eq.${customerId}`, {
-          status,
-          stripe_subscription_id: data.id
-        });
-        break;
-      }
-
-      case 'customer.subscription.deleted': {
-        const customerId = data.customer;
-        await supabase('PATCH', `users?stripe_customer_id=eq.${customerId}`, {
-          status: 'cancelled',
-          plan: 'free'
-        });
-        break;
-      }
-
-      case 'invoice.payment_failed': {
-        const customerId = data.customer;
-        await supabase('PATCH', `users?stripe_customer_id=eq.${customerId}`, {
-          status: 'payment_failed'
-        });
-        break;
-      }
-    }
-
-    return { statusCode: 200, headers, body: JSON.stringify({ received: true }) };
-
-  } catch (err) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    return crypto.timingSafeEqual(
+      Buffer.from(expected, 'hex'),
+      Buffer.from(signature, 'hex')
+    );
+  } catch {
+    return false;
   }
-};
+}
