@@ -1,0 +1,621 @@
+<title>BodyCipher</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap">
+
+<style>
+/* ── Design tokens: dark-first, committed palette ── */
+:root {
+  --bg:        #0b140d;
+  --bg-card:   #101a12;
+  --bg-raised: #152018;
+  --border:    #1e3022;
+  --gold:      #f5e642;
+  --fg:        #e8f0ea;
+  --fg-muted:  #7a9480;
+  --fg-dim:    #3a5040;
+  --green-pop: #2bff6e;
+  color-scheme: dark;
+  font-family: 'Outfit', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.wrap {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-left:  max(20px, env(safe-area-inset-left,  0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.wrap--mid    { max-width: 860px; }
+.wrap--narrow { max-width: 680px; }
+
+/* ── Nav ── */
+nav {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 50;
+  background: rgba(11,20,13,0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 15px;
+  padding-left:  max(20px, env(safe-area-inset-left,  0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+}
+.logo span { color: var(--fg-muted); font-weight: 300; }
+
+.btn-ghost {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--fg-muted);
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-ghost:hover { border-color: var(--fg-dim); color: var(--fg); }
+
+.btn-gold {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border-radius: 4px;
+  background: var(--gold);
+  color: #0b140d;
+  font-weight: 500;
+  transition: background 0.18s;
+}
+.btn-gold:hover { background: #ffe800; }
+
+/* ── Hero ── */
+.hero {
+  padding-block: 120px 100px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: -30% -40%;
+  background: radial-gradient(ellipse 55% 55% at 50% 65%, rgba(40,110,55,0.17) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 24px;
+  opacity: 0.85;
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 9vw, 6.2rem);
+  font-weight: 300;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  margin-bottom: 28px;
+}
+.hero h1 em { font-style: italic; color: var(--gold); }
+.hero-sub {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--fg-muted);
+  max-width: 540px;
+  margin-inline: auto;
+  margin-bottom: 48px;
+  line-height: 1.75;
+}
+.hero-ctas {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 15px 32px;
+  background: var(--gold);
+  color: #0b140d;
+  border-radius: 5px;
+  transition: background 0.18s, transform 0.15s;
+}
+.btn-primary:hover { background: #ffe800; transform: translateY(-1px); }
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  padding: 15px 30px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--fg-muted);
+  transition: border-color 0.18s, color 0.18s;
+}
+.btn-outline:hover { border-color: var(--fg-muted); color: var(--fg); }
+
+/* ── Analysis chips ── */
+.analysis-band {
+  padding-block: 32px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.analysis-scroll {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.analysis-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--fg-dim);
+  background: var(--bg-card);
+  white-space: nowrap;
+}
+.analysis-chip.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(245,230,66,0.06);
+}
+
+/* ── Section label ── */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-bottom: 44px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── How it works ── */
+.how { padding-block: 100px; }
+.how h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 300;
+  line-height: 1.1;
+  text-wrap: balance;
+  margin-bottom: 56px;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  counter-reset: steps;
+}
+.step {
+  background: var(--bg-card);
+  padding: 40px 32px;
+  counter-increment: steps;
+}
+.step::before {
+  content: "0" counter(steps);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem;
+  font-weight: 300;
+  color: var(--fg-dim);
+  line-height: 1;
+  display: block;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+.step h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+.step p {
+  font-size: 0.88rem;
+  color: var(--fg-muted);
+  line-height: 1.65;
+}
+.step-tags {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.step-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 3px;
+  background: var(--bg-raised);
+  color: var(--fg-dim);
+  border: 1px solid var(--border);
+}
+
+/* ── Features ── */
+.features {
+  padding-block: 90px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 44px 40px;
+}
+.feature-item { display: flex; flex-direction: column; gap: 10px; }
+.feature-icon { width: 36px; height: 36px; color: var(--gold); flex-shrink: 0; }
+.feature-item h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.feature-item p {
+  font-size: 0.88rem;
+  color: var(--fg-muted);
+  line-height: 1.65;
+}
+
+/* ── CTA band ── */
+.cta-band {
+  padding-block: 110px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-band::before {
+  content: '';
+  position: absolute;
+  inset: -40% -30%;
+  background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(40,110,55,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cta-band h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 300;
+  line-height: 1.1;
+  text-wrap: balance;
+  margin-bottom: 20px;
+}
+.cta-band p {
+  font-size: 1rem;
+  color: var(--fg-muted);
+  margin-bottom: 40px;
+  max-width: 460px;
+  margin-inline: auto;
+  line-height: 1.75;
+}
+
+/* ── Info band ── */
+.info-band {
+  padding-block: 72px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 48px;
+}
+.info-col h4 {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+.info-col p, .info-col address {
+  font-size: 0.88rem;
+  color: var(--fg-muted);
+  line-height: 1.7;
+  font-style: normal;
+}
+.info-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--gold);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.info-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Footer ── */
+footer { border-top: 1px solid var(--border); padding-block: 28px; }
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-left:  max(20px, env(safe-area-inset-left,  0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  opacity: 0.55;
+}
+.footer-copy {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.63rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.06em;
+}
+.footer-site {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  transition: color 0.18s;
+}
+.footer-site:hover { color: var(--gold); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .hero { padding-block: 72px 56px; }
+  .hero h1 { font-size: 2.8rem; }
+  .step { padding: 32px 22px; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary, .btn-outline { transition: none; }
+}
+</style>
+
+<!-- NAV -->
+<nav aria-label="Site navigation">
+  <div class="nav-inner">
+    <span class="logo">Body<span>Cipher</span></span>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <a href="#how-it-works" class="btn-ghost">How It Works</a>
+      <a href="https://bodycipher.org/site.html" target="_blank" rel="noopener" class="btn-gold">Visit Full Site ↗</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap wrap--narrow">
+    <p class="hero-eyebrow">AI-Powered Holistic Wellness</p>
+    <h1>Your body<br>holds the <em>code.</em></h1>
+    <p class="hero-sub">BodyCipher reads visible signs — your tongue, nails, eyes, and skin — and uses AI to map what it finds to personalized herbal remedy recommendations rooted in holistic tradition.</p>
+    <div class="hero-ctas">
+      <a href="https://bodycipher.org/site.html" target="_blank" rel="noopener" class="btn-primary">Get Started ↗</a>
+      <a href="#how-it-works" class="btn-outline">See How It Works ↓</a>
+    </div>
+  </div>
+</section>
+
+<!-- ANALYSIS CHIPS -->
+<div class="analysis-band" aria-hidden="true">
+  <div class="analysis-scroll">
+    <span class="analysis-chip active">Tongue Analysis</span>
+    <span class="analysis-chip active">Nail Analysis</span>
+    <span class="analysis-chip active">Eye Analysis</span>
+    <span class="analysis-chip active">Skin Analysis</span>
+    <span class="analysis-chip">Herbal Remedies</span>
+    <span class="analysis-chip">Personalized Insights</span>
+    <span class="analysis-chip">Holistic Wellness</span>
+    <span class="analysis-chip">Natural Health</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how-it-works">
+  <div class="wrap">
+    <p class="section-label">How It Works</p>
+    <h2>Ancient wisdom,<br>decoded by AI.</h2>
+    <div class="steps">
+      <div class="step">
+        <h3>Submit Your Photos</h3>
+        <p>Take clear photos of your tongue, nails, eyes, or skin from your phone or any device. No special equipment needed — just natural light and a few moments.</p>
+        <div class="step-tags">
+          <span class="step-tag">Tongue</span>
+          <span class="step-tag">Nails</span>
+          <span class="step-tag">Eyes</span>
+          <span class="step-tag">Skin</span>
+        </div>
+      </div>
+      <div class="step">
+        <h3>AI Reads the Signs</h3>
+        <p>BodyCipher's AI analyzes color, texture, coating, and visible markers that holistic practitioners have used for generations to understand what the body is communicating.</p>
+        <div class="step-tags">
+          <span class="step-tag">AI Vision</span>
+          <span class="step-tag">Pattern Analysis</span>
+        </div>
+      </div>
+      <div class="step">
+        <h3>Receive Your Recommendations</h3>
+        <p>Get a personalized breakdown of what your body's signals may indicate, paired with herbal remedy recommendations tailored to your unique profile.</p>
+        <div class="step-tags">
+          <span class="step-tag">Herbal Remedies</span>
+          <span class="step-tag">Personalized</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="wrap">
+    <p class="section-label">Why BodyCipher</p>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <circle cx="18" cy="18" r="13"/>
+          <path d="M18 10v8l5 3" stroke-linecap="round"/>
+        </svg>
+        <h3>Rooted in Tradition</h3>
+        <p>BodyCipher draws from centuries of holistic health knowledge — tongue reading, nail analysis, iridology — and brings it into the modern world through AI.</p>
+      </div>
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M6 28c4-8 10-12 12-12s8 4 12 12"/>
+          <circle cx="18" cy="13" r="4"/>
+        </svg>
+        <h3>Personalized to You</h3>
+        <p>No two bodies are the same. Every recommendation BodyCipher generates is derived from your specific photos, not a generic template.</p>
+      </div>
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M18 4l3 9h9l-7 5 3 9-8-6-8 6 3-9-7-5h9z" stroke-linejoin="round"/>
+        </svg>
+        <h3>Natural &amp; Holistic</h3>
+        <p>Everything recommended leans on natural, plant-based remedies. BodyCipher complements your wellness journey — it doesn't replace your healthcare provider.</p>
+      </div>
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M18 4v28M4 18h28" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="8"/>
+        </svg>
+        <h3>Instant Insights</h3>
+        <p>No waiting weeks for an appointment. Upload your photos and receive your personalized wellness analysis and herbal guidance in minutes.</p>
+      </div>
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M10 18s2-6 8-6 8 6 8 6-2 6-8 6-8-6-8-6z"/>
+          <circle cx="18" cy="18" r="2.5" fill="currentColor" stroke="none"/>
+        </svg>
+        <h3>See What Others Miss</h3>
+        <p>Subtle changes in tongue coating, nail ridges, or eye clarity tell a story. BodyCipher is trained to notice what most of us overlook in our everyday routines.</p>
+      </div>
+      <div class="feature-item">
+        <svg class="feature-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <rect x="6" y="8" width="24" height="20" rx="2"/>
+          <path d="M12 8V5M24 8V5M6 16h24"/>
+          <path d="M13 22l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3>Track Your Progress</h3>
+        <p>Wellness is a journey, not a moment. BodyCipher helps you monitor changes over time and see how your body responds to natural remedies and lifestyle shifts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="cta-band">
+  <div class="wrap wrap--narrow">
+    <h2>Ready to listen<br>to your body?</h2>
+    <p>Visit BodyCipher and start your holistic wellness journey today — powered by AI, grounded in nature.</p>
+    <a href="https://bodycipher.org/site.html" target="_blank" rel="noopener" class="btn-primary" style="margin-inline: auto;">
+      Visit BodyCipher.org ↗
+    </a>
+  </div>
+</section>
+
+<!-- INFO BAND -->
+<section class="info-band">
+  <div class="wrap">
+    <div class="info-grid">
+      <div class="info-col">
+        <h4>About</h4>
+        <p>BodyCipher is an AI-powered holistic wellness platform that analyzes visible body signals and provides personalized herbal remedy recommendations rooted in natural health traditions.</p>
+      </div>
+      <div class="info-col">
+        <h4>Service Area</h4>
+        <p>Fully online — available to anyone, anywhere. Photo submissions and wellness insights are conducted entirely through the platform, with no in-person visit required.</p>
+      </div>
+      <div class="info-col">
+        <h4>Contact</h4>
+        <address>
+          877-752-1144<br>
+          <span style="font-size: 0.82rem; color: var(--fg-dim); margin-top: 4px; display: block;">Chicago Heights, IL 60411</span>
+        </address>
+      </div>
+      <div class="info-col">
+        <h4>Full Platform</h4>
+        <p>Explore everything BodyCipher has to offer — services, herbal resources, and the full wellness experience.</p>
+        <a href="https://bodycipher.org/site.html" target="_blank" rel="noopener" class="info-link">bodycipher.org ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-logo">BodyCipher</span>
+    <span class="footer-copy">© 2026 BodyCipher. All rights reserved.</span>
+    <a href="https://bodycipher.org/site.html" target="_blank" rel="noopener" class="footer-site">bodycipher.org ↗</a>
+  </div>
+</footer>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2ZPDQ698J8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2ZPDQ698J8');
+</script>
+
+<script>
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+</script>
