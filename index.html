@@ -466,16 +466,14 @@ footer { border-top: 1px solid var(--border); padding-block: 28px; }
 <section style="padding-block: 80px; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
   <div class="wrap wrap--mid">
     <p class="section-label">See It In Action</p>
-    <div style="position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #000;">
-      <video
-        controls
-        preload="metadata"
-        poster=""
-        style="width: 100%; display: block; max-height: 560px; object-fit: contain; background: #000;"
-        aria-label="BodyCipher product video">
-        <source src="BodyCipher.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; border: 1px solid var(--border); background: #000;">
+      <iframe
+        src="https://www.youtube.com/embed/fRJ_pMM6w-k"
+        title="BodyCipher product video"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
+      </iframe>
     </div>
   </div>
 </section>
